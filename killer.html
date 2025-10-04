@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu du Killer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Bleu foncé pour un thème de soirée */
+        }
+        .reveal-role {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto max-w-2xl p-6 bg-slate-800 rounded-3xl shadow-2xl flex flex-col items-center space-y-8">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white mb-2">Jeu du Killer</h1>
+            <p class="text-gray-400 text-lg">Distribuez les rôles et commencez la partie !</p>
+        </div>
+
+        <!-- Section pour ajouter des joueurs -->
+        <div id="add-players-section" class="w-full space-y-4">
+            <h2 class="text-2xl font-bold text-center">Ajouter les joueurs</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="player-name-input" placeholder="Nom du joueur" class="flex-grow p-3 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all">
+                <button id="add-player-btn" class="bg-red-600 hover:bg-red-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Ajouter
+                </button>
+            </div>
+            <div id="error-message" class="text-red-400 text-center hidden">Veuillez entrer un nom valide.</div>
+        </div>
+        
+        <!-- Section pour la liste des joueurs et les actions du jeu -->
+        <div id="game-section" class="w-full space-y-6 hidden">
+            <h2 class="text-2xl font-bold text-center">Liste des joueurs</h2>
+            <ul id="players-list" class="space-y-2 text-center text-lg"></ul>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <button id="start-game-btn" class="bg-green-600 hover:bg-green-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Distribuer les rôles
+                </button>
+                <button id="reset-game-btn" class="bg-gray-600 hover:bg-gray-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Réinitialiser
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal pour révéler le rôle -->
+        <div id="role-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role">
+            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
+                <h2 class="text-4xl font-bold">Votre Rôle est...</h2>
+                <p id="player-role" class="text-6xl font-black text-red-500"></p>
+                <p id="role-description" class="text-lg text-gray-400"></p>
+                <button id="hide-role-btn" class="bg-red-600 hover:bg-red-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Cacher
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Références aux éléments du DOM
+        const playerNameInput = document.getElementById('player-name-input');
+        const addPlayerBtn = document.getElementById('add-player-btn');
+        const playersList = document.getElementById('players-list');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const resetGameBtn = document.getElementById('reset-game-btn');
+        const addPlayersSection = document.getElementById('add-players-section');
+        const gameSection = document.getElementById('game-section');
+        const roleModal = document.getElementById('role-modal');
+        const playerRoleDisplay = document.getElementById('player-role');
+        const roleDescriptionDisplay = document.getElementById('role-description');
+        const hideRoleBtn = document.getElementById('hide-role-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        // Constantes et état
+        const LOCAL_STORAGE_KEY = 'killer_game_state';
+        let players = [];
+        let rolesAssigned = false;
+
+        /**
+         * Sauvegarde l'état du jeu dans le localStorage.
+         */
+        function saveGameState() {
+            try {
+                const gameState = { players, rolesAssigned };
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(gameState));
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde dans le localStorage", e);
+            }
+        }
+
+        /**
+         * Charge l'état du jeu depuis le localStorage.
+         */
+        function loadGameState() {
+            try {
+                const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (storedState) {
+                    const gameState = JSON.parse(storedState);
+                    players = gameState.players || [];
+                    rolesAssigned = gameState.rolesAssigned || false;
+                }
+            } catch (e) {
+                console.error("Erreur lors du chargement depuis le localStorage", e);
+            }
+        }
+
+        /**
+         * Met à jour l'affichage de la liste des joueurs.
+         */
+        function renderPlayers() {
+            playersList.innerHTML = '';
+            if (players.length > 0) {
+                gameSection.classList.remove('hidden');
+            } else {
+                gameSection.classList.add('hidden');
+            }
+
+            players.forEach((player, index) => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center bg-slate-700 p-3 rounded-lg shadow-md";
+                
+                const playerNameSpan = document.createElement('span');
+                playerNameSpan.textContent = player.name;
+                li.appendChild(playerNameSpan);
+
+                if (!rolesAssigned) {
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = '❌';
+                    removeBtn.className = "ml-4 p-1 rounded-full text-gray-400 hover:text-red-500 transition-colors";
+                    removeBtn.addEventListener('click', () => removePlayer(index));
+                    li.appendChild(removeBtn);
+                } else {
+                    li.classList.add('cursor-pointer', 'hover:bg-slate-600', 'transition-colors');
+                    li.addEventListener('click', () => revealRole(player));
+                }
+                
+                playersList.appendChild(li);
+            });
+        }
+
+        /**
+         * Ajoute un nouveau joueur.
+         */
+        function addPlayer() {
+            const name = playerNameInput.value.trim();
+            if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+                players.push({ name: name, role: null });
+                playerNameInput.value = '';
+                errorMessage.classList.add('hidden');
+                renderPlayers();
+                saveGameState();
+            } else {
+                errorMessage.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Supprime un joueur.
+         * @param {number} index L'index du joueur à supprimer.
+         */
+        function removePlayer(index) {
+            players.splice(index, 1);
+            renderPlayers();
+            saveGameState();
+        }
+
+        /**
+         * Distribue les rôles aux joueurs.
+         */
+        function assignRoles() {
+            if (players.length < 3) {
+                alert("Il faut au moins 3 joueurs pour commencer !"); // Utilisation d'un message d'alerte simple pour l'exemple
+                return;
+            }
+
+            const roles = [];
+            
+            // Assignation des rôles basée sur le nombre de joueurs
+            roles.push('Tueur');
+            if (players.length >= 8) {
+                roles.push('Tueur');
+            }
+            roles.push('Détective');
+            if (players.length >= 6) {
+                roles.push('Détective');
+            }
+            
+            // Le reste sont des Citoyens
+            while (roles.length < players.length) {
+                roles.push('Citoyen');
+            }
+
+            // Mélange des rôles et assignation
+            const shuffledRoles = roles.sort(() => Math.random() - 0.5);
+            players.forEach((player, index) => {
+                player.role = shuffledRoles[index];
+            });
+
+            rolesAssigned = true;
+            startGameBtn.textContent = 'Révéler les rôles';
+            startGameBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+            startGameBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            renderPlayers();
+            saveGameState();
+        }
+
+        /**
+         * Affiche le rôle d'un joueur dans une modale.
+         * @param {Object} player L'objet joueur.
+         */
+        function revealRole(player) {
+            let description = '';
+            let roleColor = 'text-white';
+
+            switch (player.role) {
+                case 'Tueur':
+                    description = "Votre but est d'éliminer discrètement les autres joueurs.";
+                    roleColor = 'text-red-500';
+                    break;
+                case 'Détective':
+                    description = "Votre but est de découvrir qui est le tueur.";
+                    roleColor = 'text-blue-500';
+                    break;
+                case 'Citoyen':
+                    description = "Votre but est de survivre et d'aider à trouver le tueur.";
+                    roleColor = 'text-green-500';
+                    break;
+            }
+
+            playerRoleDisplay.textContent = player.role;
+            playerRoleDisplay.className = `text-6xl font-black ${roleColor}`;
+            roleDescriptionDisplay.textContent = description;
+            roleModal.classList.remove('hidden');
+        }
+
+        /**
+         * Gère le bouton pour démarrer ou révéler les rôles.
+         */
+        function handleGameStart() {
+            if (rolesAssigned) {
+                players.forEach(player => {
+                    const playerElement = document.querySelector(`li > span[textContent="${player.name}"]`).closest('li');
+                    const roleSpan = document.createElement('span');
+                    roleSpan.textContent = ` (${player.role})`;
+                    roleSpan.className = 'font-bold ml-2';
+                    playerElement.appendChild(roleSpan);
+                });
+                startGameBtn.classList.add('hidden');
+                resetGameBtn.textContent = 'Nouvelle partie';
+            } else {
+                assignRoles();
+            }
+        }
+
+        // Événements
+        addPlayerBtn.addEventListener('click', addPlayer);
+        playerNameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+        startGameBtn.addEventListener('click', handleGameStart);
+        resetGameBtn.addEventListener('click', () => {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            window.location.reload();
+        });
+        hideRoleBtn.addEventListener('click', () => {
+            roleModal.classList.add('hidden');
+        });
+
+        // Initialisation
+        window.onload = function() {
+            loadGameState();
+            renderPlayers();
+        };
+    </script>
+</body>
+</html>

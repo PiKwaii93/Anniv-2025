@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo de Soirée</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a202c; /* Couleur de fond foncée pour un look de soirée */
+        }
+        .bingo-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto max-w-4xl p-6 bg-gray-800 rounded-2xl shadow-xl flex flex-col items-center space-y-8">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white mb-2">Bingo de Soirée</h1>
+            <p class="text-gray-400 text-lg">Validez toutes les cases pour gagner !</p>
+        </div>
+
+        <!-- Zone du message de victoire -->
+        <div id="message-container" class="w-full text-center">
+            <div id="win-message" class="hidden bg-green-500 text-white text-2xl font-bold p-4 rounded-lg shadow-lg">
+                Félicitations ! Vous avez complété votre grille ! 🎉
+            </div>
+        </div>
+
+        <!-- La grille de bingo -->
+        <div id="bingo-grid" class="bingo-grid w-full aspect-square gap-4 grid">
+            <!-- Les cases seront générées ici par JavaScript -->
+        </div>
+
+        <!-- Bouton pour une nouvelle grille -->
+        <button id="new-grid-btn" class="bg-blue-600 hover:bg-blue-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+            Nouvelle Grille
+        </button>
+    </div>
+
+    <script>
+        // Définition des actions de bingo
+        const bingoActions = [
+            "Boire un verre d'eau",
+            "Faire un selfie de groupe",
+            "Dire 'Bingo !' très fort",
+            "Envoyer un message à un ami",
+            "Faire un câlin à quelqu'un",
+            "Mimer un animal",
+            "Chanter une chanson",
+            "Faire un vœu",
+            "Raconter une blague",
+            "Faire un tour sur une jambe",
+            "Dire un compliment à quelqu'un",
+            "Manger un biscuit",
+            "Demander un conseil à quelqu'un",
+            "Danser sur une musique qui ne joue pas",
+            "Parler avec un accent étranger",
+            "Faire une high-five à cinq personnes",
+            "Inventer un nouveau pas de danse",
+            "Taper dans ses mains",
+            "Faire le tour de la pièce",
+            "Faire semblant de jouer de la guitare",
+            "Trouver quelque chose de vert",
+            "Faire semblant de dormir",
+            "Rire sans raison",
+            "Dire 'Bonjour' à un inconnu",
+            "Faire le bruit d'un oiseau",
+            "Dire un mot de 10 lettres ou plus",
+            "Trouver un objet rond",
+            "Demander l'heure",
+            "Faire une grimace",
+            "Dire 'Je suis une star'"
+        ];
+
+        // Références aux éléments du DOM
+        const bingoGrid = document.getElementById('bingo-grid');
+        const newGridBtn = document.getElementById('new-grid-btn');
+        const winMessage = document.getElementById('win-message');
+
+        // Constantes du jeu
+        const GRID_SIZE = 4;
+        const LOCAL_STORAGE_KEY = 'bingo_grid_state';
+        const TOTAL_SQUARES = GRID_SIZE * GRID_SIZE;
+
+        /**
+         * Mélange un tableau de manière aléatoire.
+         * @param {Array} array Le tableau à mélanger.
+         * @returns {Array} Le tableau mélangé.
+         */
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        /**
+         * Sauvegarde l'état de la grille dans le localStorage.
+         * @param {Array} state L'état de la grille.
+         */
+        function saveGridState(state) {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde dans le localStorage", e);
+            }
+        }
+
+        /**
+         * Charge l'état de la grille depuis le localStorage.
+         * @returns {Array|null} L'état de la grille ou null si non trouvé.
+         */
+        function loadGridState() {
+            try {
+                const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+                return storedState ? JSON.parse(storedState) : null;
+            } catch (e) {
+                console.error("Erreur lors du chargement depuis le localStorage", e);
+                return null;
+            }
+        }
+
+        /**
+         * Affiche la grille sur l'interface utilisateur.
+         * @param {Array} gridState L'état de la grille à afficher.
+         */
+        function renderGrid(gridState) {
+            bingoGrid.innerHTML = ''; // Nettoie la grille existante
+            gridState.forEach((cell, index) => {
+                const cellElement = document.createElement('div');
+                cellElement.dataset.index = index;
+                
+                // Classes de style communes pour toutes les cases
+                let classes = "flex items-center justify-center p-3 text-center rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-105 shadow-md border border-gray-700";
+
+                // Ajoute des classes conditionnelles en fonction de l'état de la case
+                if (cell.validated) {
+                    classes += " bg-green-600 text-white font-bold";
+                } else {
+                    classes += " bg-gray-700 text-gray-200";
+                }
+
+                cellElement.className = classes;
+                cellElement.textContent = cell.text;
+                bingoGrid.appendChild(cellElement);
+            });
+        }
+
+        /**
+         * Vérifie si toutes les cases sont validées et affiche le message de victoire.
+         * @param {Array} gridState L'état de la grille à vérifier.
+         */
+        function checkWin(gridState) {
+            const allValidated = gridState.every(cell => cell.validated);
+            if (allValidated) {
+                winMessage.classList.remove('hidden');
+                bingoGrid.classList.add('pointer-events-none', 'opacity-50'); // Désactive la grille
+            } else {
+                winMessage.classList.add('hidden');
+                bingoGrid.classList.remove('pointer-events-none', 'opacity-50');
+            }
+        }
+
+        /**
+         * Initialise une nouvelle partie.
+         */
+        function newGame() {
+            // Sélectionne 16 actions aléatoires uniques
+            const shuffledActions = shuffle([...bingoActions]);
+            const selectedActions = shuffledActions.slice(0, TOTAL_SQUARES);
+
+            const newGridState = selectedActions.map(action => ({
+                text: action,
+                validated: false
+            }));
+
+            renderGrid(newGridState);
+            saveGridState(newGridState);
+            checkWin(newGridState);
+        }
+
+        /**
+         * Gère les clics sur les cases de la grille.
+         * @param {Event} event L'événement de clic.
+         */
+        function handleGridClick(event) {
+            const cellElement = event.target.closest('div');
+            if (!cellElement || !cellElement.dataset.index) return;
+
+            const index = parseInt(cellElement.dataset.index, 10);
+            let gridState = loadGridState();
+            if (!gridState) return;
+
+            // Bascule l'état de la case
+            gridState[index].validated = !gridState[index].validated;
+
+            // Met à jour l'interface et sauvegarde
+            renderGrid(gridState);
+            saveGridState(gridState);
+            checkWin(gridState);
+        }
+
+        // Écouteur d'événements pour le bouton de nouvelle grille
+        newGridBtn.addEventListener('click', newGame);
+
+        // Écouteur d'événements pour les clics sur la grille
+        bingoGrid.addEventListener('click', handleGridClick);
+
+        // Initialisation de l'application
+        window.onload = function() {
+            const storedState = loadGridState();
+            if (storedState) {
+                renderGrid(storedState);
+                checkWin(storedState);
+            } else {
+                newGame();
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Tournament BeerPong</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+        .reveal { animation: fadeIn 0.35s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        /* Style des lignes de l'arbre de tournoi */
+        .bracket-match {
+            position: relative;
+        }
+        .bracket-match::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 100%;
+            height: 2px;
+            width: 2rem; /* Longueur de la ligne */
+            background-color: #4b5563;
+            transform: translateY(-50%);
+        }
+        .bracket-match.final-match::after {
+            width: 0;
+        }
+        .round-column {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            min-width: 280px;
+            flex-shrink: 0;
+            padding: 1.5rem;
+            background-color: #1f2937;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        .match-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .match-container .bracket-node {
+            margin-top: 0;
+        }
+        .line {
+            position: absolute;
+            background-color: #4b5563;
+            z-index: 10;
+        }
+        .line.horizontal {
+            height: 2px;
+        }
+        .line.vertical {
+            width: 2px;
+        }
+        /* Style des noeuds de match */
+        .bracket-node {
+            background-color: #374151;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .bracket-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
+        }
+        .match-winner {
+            background-color: #10b981;
+            transform: scale(1.05);
+            font-weight: bold;
+        }
+        .match-loser {
+            opacity: 0.6;
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: #1f2937;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            text-align: center;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-6 flex flex-col items-center">
+    <div class="container max-w-6xl w-full p-6 bg-slate-800 rounded-3xl shadow-2xl space-y-6">
+        <div class="text-center">
+            <h1 class="text-5xl font-bold tracking-tight mb-1">BeerPong Tournament</h1>
+            <p class="text-gray-400">Crée ton tournoi, saisis les scores et laisse l'arbre se mettre à jour automatiquement.</p>
+        </div>
+
+        <!-- Input équipes -->
+        <div class="bg-slate-700 p-6 rounded-xl shadow-inner space-y-4">
+            <h2 class="text-2xl font-bold">Ajouter les équipes</h2>
+            <div class="flex flex-col md:flex-row gap-3">
+                <input id="team-input" type="text" placeholder="Nom de l'équipe (ex: Les Buveurs)" class="flex-grow p-3 rounded-lg bg-slate-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500">
+                <button id="add-team-btn" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl font-bold shadow-lg transform hover:scale-105">Ajouter</button>
+                <button id="random-fill-btn" class="bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-xl font-bold shadow-lg transform hover:scale-105">Remplissage aléatoire</button>
+            </div>
+            <div class="flex items-center justify-between">
+                <p id="teams-count" class="text-gray-300">0 équipes</p>
+                <div class="space-x-2">
+                    <button id="generate-btn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl font-bold shadow-lg">Générer le tournoi</button>
+                    <button id="reset-btn" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-xl font-bold shadow-lg">Réinitialiser</button>
+                </div>
+            </div>
+            <div id="teams-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3"></div>
+        </div>
+
+        <!-- Bracket area -->
+        <div id="bracket-area" class="hidden bg-slate-800 p-6 rounded-xl">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-bold">Arbre du tournoi</h2>
+                <div class="flex items-center gap-3">
+                    <div id="champion-badge" class="hidden items-center gap-3 bg-yellow-500 text-slate-900 px-4 py-2 rounded-full font-bold">
+                        🏆 <span id="champion-name"></span>
+                    </div>
+                    <button id="download-state" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-sm">Exporter JSON</button>
+                </div>
+            </div>
+
+            <div id="rounds-container" class="w-full overflow-x-auto py-4">
+                <div id="rounds" class="flex gap-6 items-center"></div>
+            </div>
+        </div>
+
+        <div class="text-center text-sm text-gray-400">Sauvegarde automatique dans ton navigateur. Le site fonctionne hors-ligne pour le tournoi en cours.</div>
+    </div>
+    
+    <!-- Modale de confirmation -->
+    <div id="alert-modal" class="modal hidden">
+        <div class="modal-content bg-slate-700 rounded-xl p-6 space-y-4">
+            <p id="alert-message" class="text-lg"></p>
+            <button id="alert-ok-btn" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-bold">OK</button>
+        </div>
+    </div>
+
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content bg-slate-700 rounded-xl p-6 space-y-4">
+            <p id="confirm-message" class="text-lg"></p>
+            <div class="flex justify-center gap-4">
+                <button id="confirm-yes-btn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-bold">Oui</button>
+                <button id="confirm-no-btn" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-bold">Non</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Constantes / utilitaires ---
+        const LOCAL_KEY = 'beerpong_tournament_v1';
+        const teamInput = document.getElementById('team-input');
+        const addTeamBtn = document.getElementById('add-team-btn');
+        const randomFillBtn = document.getElementById('random-fill-btn');
+        const teamsListEl = document.getElementById('teams-list');
+        const teamsCountEl = document.getElementById('teams-count');
+        const generateBtn = document.getElementById('generate-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const bracketArea = document.getElementById('bracket-area');
+        const roundsContainer = document.getElementById('rounds');
+        const championBadge = document.getElementById('champion-badge');
+        const championNameEl = document.getElementById('champion-name');
+        const downloadBtn = document.getElementById('download-state');
+        const alertModal = document.getElementById('alert-modal');
+        const alertMessage = document.getElementById('alert-message');
+        const alertOkBtn = document.getElementById('alert-ok-btn');
+        const confirmModal = document.getElementById('confirm-modal');
+        const confirmMessage = document.getElementById('confirm-message');
+        const confirmYesBtn = document.getElementById('confirm-yes-btn');
+        const confirmNoBtn = document.getElementById('confirm-no-btn');
+        
+        let teams = []; // array of { name }
+        let rounds = null; // array of rounds; each round is array of match objects
+        
+        function showAlert(message) {
+            alertMessage.textContent = message;
+            alertModal.classList.remove('hidden');
+            alertOkBtn.onclick = () => alertModal.classList.add('hidden');
+        }
+
+        function showConfirm(message, onYes, onNo) {
+            confirmMessage.textContent = message;
+            confirmModal.classList.remove('hidden');
+            
+            const handleYes = () => {
+                confirmModal.classList.add('hidden');
+                onYes();
+                confirmYesBtn.removeEventListener('click', handleYes);
+                confirmNoBtn.removeEventListener('click', handleNo);
+            };
+
+            const handleNo = () => {
+                confirmModal.classList.add('hidden');
+                if (onNo) onNo();
+                confirmYesBtn.removeEventListener('click', handleYes);
+                confirmNoBtn.removeEventListener('click', handleNo);
+            };
+
+            confirmYesBtn.addEventListener('click', handleYes);
+            confirmNoBtn.addEventListener('click', handleNo);
+        }
+
+        // --- Helpers ---
+        function saveState() {
+            const state = { teams, rounds };
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(LOCAL_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                teams = parsed.teams || [];
+                rounds = parsed.rounds || null;
+            } catch (e) {
+                console.warn('Erreur load state', e);
+            }
+        }
+
+        function updateTeamsUI() {
+            teamsListEl.innerHTML = '';
+            teams.forEach((t, i) => {
+                const card = document.createElement('div');
+                card.className = "flex justify-between items-center bg-slate-700 p-3 rounded-lg";
+                const name = document.createElement('div');
+                name.textContent = t.name;
+                name.className = "font-medium";
+                const right = document.createElement('div');
+                right.className = "flex items-center gap-2";
+                const upBtn = document.createElement('button');
+                upBtn.innerHTML = '⬆️'; upBtn.title = 'Monter';
+                upBtn.className = 'p-1 rounded-md hover:bg-slate-600';
+                upBtn.onclick = () => { if (i>0) { [teams[i-1], teams[i]] = [teams[i], teams[i-1]]; updateTeamsUI(); saveState(); } };
+                const downBtn = document.createElement('button');
+                downBtn.innerHTML = '⬇️'; downBtn.title = 'Descendre';
+                downBtn.className = 'p-1 rounded-md hover:bg-slate-600';
+                downBtn.onclick = () => { if (i<teams.length-1) { [teams[i+1], teams[i]] = [teams[i], teams[i+1]]; updateTeamsUI(); saveState(); } };
+                const delBtn = document.createElement('button');
+                delBtn.innerHTML = '❌'; delBtn.title = 'Supprimer';
+                delBtn.className = 'p-1 rounded-md hover:bg-red-600';
+                delBtn.onclick = () => { teams.splice(i,1); renderTeamsCount(); updateTeamsUI(); saveState(); };
+
+                right.appendChild(upBtn);
+                right.appendChild(downBtn);
+                right.appendChild(delBtn);
+                card.appendChild(name);
+                card.appendChild(right);
+                teamsListEl.appendChild(card);
+            });
+            renderTeamsCount();
+        }
+
+        function renderTeamsCount(){
+            teamsCountEl.textContent = teams.length + (teams.length <= 1 ? ' équipe' : ' équipes');
+        }
+
+        function shuffleArray(a) {
+            // Fisher-Yates
+            for (let i=a.length-1;i>0;i--){
+                const j = Math.floor(Math.random()*(i+1));
+                [a[i],a[j]] = [a[j],a[i]];
+            }
+            return a;
+        }
+
+        function nextPowerOfTwo(n){
+            let p = 1;
+            while (p < n) p <<= 1;
+            return p;
+        }
+
+        // --- Bracket generation ---
+        function generateBracket() {
+            if (teams.length < 2) {
+                showAlert('Il faut au moins 2 équipes pour générer un tournoi.');
+                return;
+            }
+
+            // shuffle teams and fill with byes (null)
+            const base = teams.map(t => ({ name: t.name }));
+            shuffleArray(base);
+            const p2 = nextPowerOfTwo(base.length);
+            const byes = p2 - base.length;
+            for (let i=0;i<byes;i++) base.push(null);
+
+            // initial round: pair sequentially
+            const initialMatches = [];
+            for (let i=0;i<base.length;i+=2){
+                initialMatches.push({
+                    teamA: base[i],    // {name} or null
+                    teamB: base[i+1],  // {name} or null
+                    scoreA: null,
+                    scoreB: null,
+                    winner: null,
+                    decided: false
+                });
+            }
+
+            // compute number of rounds
+            const roundsArr = [initialMatches];
+            let matchesThisRound = initialMatches.length;
+            while (matchesThisRound > 1) {
+                matchesThisRound = Math.ceil(matchesThisRound / 2);
+                const matches = Array.from({length: matchesThisRound}, () => ({
+                    teamA: null, teamB: null, scoreA:null, scoreB:null, winner:null, decided:false
+                }));
+                roundsArr.push(matches);
+            }
+
+            rounds = roundsArr;
+            // auto-advance matches that have BYE
+            autoAdvanceByes();
+            saveState();
+            renderBracket();
+            bracketArea.classList.remove('hidden');
+        }
+
+        // auto-advance matches where one side is null
+        function autoAdvanceByes() {
+            if (!rounds) return;
+            for (let r=0; r<rounds.length; r++){
+                const round = rounds[r];
+                for (let m=0; m<round.length; m++){
+                    const match = round[m];
+                    if (match.decided) continue;
+                    if (match.teamA && !match.teamB) {
+                        match.winner = match.teamA;
+                        match.decided = true;
+                        propagateWinner(r, m, match.winner);
+                    } else if (!match.teamA && match.teamB) {
+                        match.winner = match.teamB;
+                        match.decided = true;
+                        propagateWinner(r, m, match.winner);
+                    } else if (!match.teamA && !match.teamB) {
+                        // nothing
+                    }
+                }
+            }
+        }
+
+        // propagate winner to next round slot
+        function propagateWinner(roundIndex, matchIndex, winnerTeam) {
+            if (!rounds) return;
+            const nextRoundIndex = roundIndex + 1;
+            if (nextRoundIndex >= rounds.length) {
+                // final winner
+                saveState();
+                renderBracket();
+                return;
+            }
+            const nextMatchIndex = Math.floor(matchIndex / 2);
+            const slot = (matchIndex % 2 === 0) ? 'teamA' : 'teamB';
+            rounds[nextRoundIndex][nextMatchIndex][slot] = { ...winnerTeam }; // copy
+            saveState();
+            // If the next match now has a bye on the other side, auto-advance
+            const nextMatch = rounds[nextRoundIndex][nextMatchIndex];
+            if ((nextMatch.teamA && !nextMatch.teamB) || (!nextMatch.teamA && nextMatch.teamB)) {
+                if (!nextMatch.decided) {
+                    nextMatch.winner = nextMatch.teamA || nextMatch.teamB;
+                    nextMatch.decided = true;
+                    propagateWinner(nextRoundIndex, nextMatchIndex, nextMatch.winner);
+                }
+            }
+        }
+
+        // --- UI: render bracket ---
+        function renderBracket() {
+            roundsContainer.innerHTML = ''; // clear
+            if (!rounds) {
+                bracketArea.classList.add('hidden');
+                return;
+            }
+            
+            // Show champion if final decided
+            const finalRound = rounds[rounds.length - 1];
+            const finalMatch = finalRound[0];
+            if (finalMatch && finalMatch.decided && finalMatch.winner) {
+                championBadge.classList.remove('hidden');
+                championNameEl.textContent = finalMatch.winner.name;
+            } else {
+                championBadge.classList.add('hidden');
+            }
+
+            rounds.forEach((round, roundIdx) => {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = `round-column ${roundIdx > 0 ? 'ml-12' : ''}`;
+                const title = document.createElement('div');
+                title.className = 'text-center font-bold text-xl mb-4';
+                title.textContent = (roundIdx === rounds.length - 1) ? 'Final' : `Round ${roundIdx + 1}`;
+                roundDiv.appendChild(title);
+
+                round.forEach((match, matchIdx) => {
+                    const matchCard = document.createElement('div');
+                    matchCard.className = 'bracket-node p-4 rounded-lg shadow-md';
+                    
+                    const teamsDiv = document.createElement('div');
+                    teamsDiv.className = 'space-y-2';
+
+                    const teamRow = (side, teamObj, isWinner) => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'flex items-center justify-between';
+                        
+                        const nameEl = document.createElement('div');
+                        nameEl.className = 'text-sm font-medium';
+                        nameEl.textContent = teamObj ? teamObj.name : (teamObj === null ? 'Bye' : '—');
+                        nameEl.classList.add('text-gray-100');
+                        if (isWinner) {
+                            nameEl.classList.add('text-yellow-300', 'font-extrabold');
+                        }
+
+                        const scoreContainer = document.createElement('div');
+                        scoreContainer.className = 'flex items-center gap-2';
+
+                        const scoreInput = document.createElement('input');
+                        scoreInput.type = 'number';
+                        scoreInput.min = 0;
+                        scoreInput.placeholder = '-';
+                        scoreInput.value = (side === 'A' ? (match.scoreA !== null ? match.scoreA : '') : (match.scoreB !== null ? match.scoreB : ''));
+                        scoreInput.className = 'w-14 p-1 text-center rounded-md bg-slate-700';
+                        
+                        // Modifier l'écouteur d'événement pour appeler la fonction de soumission
+                        scoreInput.onkeydown = (e) => {
+                            if (e.key === 'Enter') {
+                                const valA = document.getElementById(`score-A-${roundIdx}-${matchIdx}`).value;
+                                const valB = document.getElementById(`score-B-${roundIdx}-${matchIdx}`).value;
+                                if (valA !== '' && valB !== '') {
+                                    submitScore(roundIdx, matchIdx);
+                                } else {
+                                    showAlert('Saisis les deux scores.');
+                                }
+                            }
+                        };
+                        
+                        // Ajouter des IDs pour pouvoir récupérer les valeurs
+                        scoreInput.id = `score-${side}-${roundIdx}-${matchIdx}`;
+
+                        wrapper.appendChild(nameEl);
+                        wrapper.appendChild(scoreContainer);
+                        scoreContainer.appendChild(scoreInput);
+                        return { wrapper, scoreInput };
+                    };
+
+                    const rowA = teamRow('A', match.teamA, match.decided && match.winner && match.winner.name === (match.teamA && match.teamA.name));
+                    const rowB = teamRow('B', match.teamB, match.decided && match.winner && match.winner.name === (match.teamB && match.teamB.name));
+
+                    teamsDiv.appendChild(rowA.wrapper);
+                    teamsDiv.appendChild(rowB.wrapper);
+
+                    // Actions
+                    const actions = document.createElement('div');
+                    actions.className = 'flex items-center justify-between mt-3 gap-2';
+
+                    const submitBtn = document.createElement('button');
+                    submitBtn.className = 'bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg font-bold';
+                    submitBtn.textContent = 'Valider';
+                    submitBtn.onclick = () => {
+                        const valA = rowA.scoreInput.value;
+                        const valB = rowB.scoreInput.value;
+                        match.scoreA = valA !== '' ? parseInt(valA, 10) : null;
+                        match.scoreB = valB !== '' ? parseInt(valB, 10) : null;
+                        submitScore(roundIdx, matchIdx);
+                    };
+
+                    const clearBtn = document.createElement('button');
+                    clearBtn.className = 'bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded-lg';
+                    clearBtn.textContent = 'Effacer';
+                    clearBtn.onclick = () => {
+                        showConfirm('Effacer ce résultat ? Les matchs suivants seront réinitialisés.', () => {
+                            match.scoreA = null;
+                            match.scoreB = null;
+                            match.winner = null;
+                            match.decided = false;
+                            clearDownstream(roundIdx, matchIdx);
+                            saveState();
+                            renderBracket();
+                        });
+                    };
+
+                    actions.appendChild(submitBtn);
+                    actions.appendChild(clearBtn);
+
+                    matchCard.appendChild(teamsDiv);
+                    matchCard.appendChild(actions);
+
+                    roundDiv.appendChild(matchCard);
+                });
+
+                roundsContainer.appendChild(roundDiv);
+            });
+
+            saveState();
+        }
+
+
+        // clear downstream winners that depend on a match (called when erasing a match result)
+        function clearDownstream(roundIndex, matchIndex) {
+            if (!rounds) return;
+            
+            // simpler approach: rebuild all next-round slots from scratch using decided winners up to each round
+            // First, clear all teams except initial round
+            for (let r=roundIndex+1;r<rounds.length;r++){
+                rounds[r].forEach(m=>{
+                    m.teamA = null; m.teamB = null; m.scoreA = null; m.scoreB = null; m.winner = null; m.decided = false;
+                });
+            }
+            // propagate winners from round 0 forward
+            for (let r=0;r<rounds.length;r++){
+                for (let mIdx=0;mIdx<rounds[r].length;mIdx++){
+                    const m = rounds[r][mIdx];
+                    if (m.decided && m.winner) {
+                        const nextR = r+1;
+                        if (nextR < rounds.length) {
+                            const nextMatchIdx = Math.floor(mIdx/2);
+                            const slot = (mIdx % 2 === 0) ? 'teamA' : 'teamB';
+                            rounds[nextR][nextMatchIdx][slot] = { ...m.winner };
+                            // if next match had a bye, may become auto-decided (handled later)
+                        }
+                    } else {
+                        if (m.teamA && !m.decided && !m.teamB) {
+                            // handled in autoAdvanceByes after loop
+                        }
+                    }
+                }
+            }
+            autoAdvanceByes();
+            saveState();
+        }
+
+        // submit score for a match
+        function submitScore(roundIdx, matchIdx) {
+            const match = rounds[roundIdx][matchIdx];
+            if (!match) return;
+            // require both scores present (unless one team is null -> bye already auto-advanced)
+            if (match.teamA && match.teamB) {
+                if (match.scoreA === null || match.scoreB === null) {
+                    showAlert('Saisis les deux scores.');
+                    return;
+                }
+                if (match.scoreA === match.scoreB) {
+                    showAlert('Match nul non autorisé. Ajuste les scores (ex: PB).');
+                    return;
+                }
+                match.decided = true;
+                match.winner = (match.scoreA > match.scoreB) ? match.teamA : match.teamB;
+                propagateWinner(roundIdx, matchIdx, match.winner);
+                saveState();
+                renderBracket();
+            } else {
+                showAlert('Match invalide (bye).');
+            }
+        }
+
+        // --- Events ---
+        addTeamBtn.addEventListener('click', () => {
+            const name = teamInput.value.trim();
+            if (!name) return;
+            if (teams.find(t=>t.name.toLowerCase() === name.toLowerCase())) {
+                showAlert('Cette équipe existe déjà.');
+                return;
+            }
+            teams.push({ name });
+            teamInput.value = '';
+            updateTeamsUI();
+            saveState();
+        });
+
+        teamInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addTeamBtn.click();
+        });
+
+        randomFillBtn.addEventListener('click', () => {
+            const samples = ['Les Têtes', 'Les Rebonds', 'Les Pintes', 'Bière & Co', 'Shot Masters', 'Les Noms', 'Team Rouge', 'Team Bleu', 'Les Frappés', 'Les Éclopés'];
+            const toAdd = [];
+            for (let i=0;i<4;i++){
+                const s = samples[Math.floor(Math.random()*samples.length)] + ' ' + Math.floor(Math.random()*99);
+                if (!teams.find(t=>t.name===s)) toAdd.push(s);
+            }
+            toAdd.forEach(n => teams.push({ name: n }));
+            updateTeamsUI();
+            saveState();
+        });
+
+        generateBtn.addEventListener('click', () => {
+            generateBracket();
+        });
+
+        resetBtn.addEventListener('click', () => {
+            showConfirm('Réinitialiser tout le tournoi ?', () => {
+                teams = [];
+                rounds = null;
+                localStorage.removeItem(LOCAL_KEY);
+                updateTeamsUI();
+                renderBracket();
+                bracketArea.classList.add('hidden');
+                championBadge.classList.add('hidden');
+            });
+        });
+
+        downloadBtn.addEventListener('click', () => {
+            const state = { teams, rounds };
+            const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'beerpong_tournament.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        });
+
+        // --- Init ---
+        window.addEventListener('load', () => {
+            loadState();
+            updateTeamsUI();
+            if (rounds) {
+                bracketArea.classList.remove('hidden');
+                renderBracket();
+            }
+        });
+    </script>
+</body>
+</html>

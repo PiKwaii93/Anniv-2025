@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jeu de l'Assassin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Bleu foncé pour un thème de soirée */
+        }
+        .reveal-role {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .mission-completed-btn {
+            background-color: #22c55e;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
+    <div class="container mx-auto max-w-2xl p-6 bg-slate-800 rounded-3xl shadow-2xl flex flex-col items-center space-y-8">
+        <div class="text-center">
+            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white mb-2">Jeu de l'Assassin</h1>
+            <p class="text-gray-400 text-lg">Distribuez les missions et éliminez votre cible !</p>
+        </div>
+
+        <!-- Section pour ajouter des joueurs -->
+        <div id="add-players-section" class="w-full space-y-4">
+            <h2 class="text-2xl font-bold text-center">Ajouter les joueurs</h2>
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="player-name-input" placeholder="Nom du joueur" class="flex-grow p-3 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
+                <button id="add-player-btn" class="bg-green-600 hover:bg-green-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Ajouter
+                </button>
+            </div>
+            <div id="error-message" class="text-red-400 text-center hidden">Veuillez entrer un nom valide.</div>
+        </div>
+
+        <!-- Section pour la liste des joueurs et les actions du jeu -->
+        <div id="game-section" class="w-full space-y-6 hidden">
+            <h2 class="text-2xl font-bold text-center">Joueurs</h2>
+            <ul id="players-list" class="space-y-2 text-center text-lg"></ul>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <button id="start-game-btn" class="bg-purple-600 hover:bg-purple-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Commencer la partie
+                </button>
+                <button id="reset-game-btn" class="bg-gray-600 hover:bg-gray-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Réinitialiser
+                </button>
+            </div>
+        </div>
+
+        <!-- Modal pour révéler la mission et la cible -->
+        <div id="mission-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role z-50">
+            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-lg w-full space-y-6">
+                <h2 class="text-4xl font-bold">Votre Mission</h2>
+                <div class="flex flex-col space-y-4">
+                    <p class="text-lg text-gray-400">Votre cible est :</p>
+                    <p id="player-target" class="text-5xl font-black text-red-500"></p>
+                    <p class="text-lg text-gray-400">Votre mission est de :</p>
+                    <p id="player-mission" class="text-2xl font-semibold text-white"></p>
+                </div>
+                <div class="flex flex-col md:flex-row justify-center gap-4 mt-6">
+                    <button id="hide-mission-btn" class="bg-gray-600 hover:bg-gray-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                        Cacher
+                    </button>
+                    <button id="complete-mission-btn" class="mission-completed-btn hover:bg-green-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                        Mission accomplie !
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal de victoire -->
+        <div id="win-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role z-50">
+            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
+                <h2 class="text-4xl font-bold text-green-500">VICTOIRE !</h2>
+                <p id="winner-name" class="text-6xl font-black text-white"></p>
+                <p class="text-lg text-gray-400">est le dernier assassin en vie !</p>
+                <button id="new-game-btn" class="bg-blue-600 hover:bg-blue-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                    Nouvelle partie
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Liste des missions pour le jeu
+        const missions = [
+            "Convaincre votre cible de faire une high-five.",
+            "Dire 'Bingo !' très fort à votre cible.",
+            "Obtenir un verre d'eau de votre cible.",
+            "Raconter une blague à votre cible et la faire rire.",
+            "Faire un compliment à votre cible.",
+            "Parler à votre cible avec un accent étranger pendant 30 secondes.",
+            "Convaincre votre cible de vous prêter son téléphone.",
+            "Taper dans la main de votre cible.",
+            "Faire une 'photo de groupe' avec votre cible.",
+            "Faire un câlin à votre cible.",
+            "Demander un conseil à votre cible sur la soirée.",
+            "Échanger de places avec votre cible pendant 30 secondes.",
+            "Dire 'Je t'aime' à votre cible, mais avec le sourire.",
+            "Faire le tour de la pièce en regardant votre cible.",
+            "Faire semblant d'être un robot et saluer votre cible.",
+            "Chanter une chanson de 5 secondes à votre cible."
+        ];
+
+        // Références aux éléments du DOM
+        const playerNameInput = document.getElementById('player-name-input');
+        const addPlayerBtn = document.getElementById('add-player-btn');
+        const playersList = document.getElementById('players-list');
+        const startGameBtn = document.getElementById('start-game-btn');
+        const resetGameBtn = document.getElementById('reset-game-btn');
+        const addPlayersSection = document.getElementById('add-players-section');
+        const gameSection = document.getElementById('game-section');
+        const missionModal = document.getElementById('mission-modal');
+        const playerTargetDisplay = document.getElementById('player-target');
+        const playerMissionDisplay = document.getElementById('player-mission');
+        const hideMissionBtn = document.getElementById('hide-mission-btn');
+        const completeMissionBtn = document.getElementById('complete-mission-btn');
+        const winModal = document.getElementById('win-modal');
+        const winnerNameDisplay = document.getElementById('winner-name');
+        const newGameBtn = document.getElementById('new-game-btn');
+        const errorMessage = document.getElementById('error-message');
+
+        // Constantes et état
+        const LOCAL_STORAGE_KEY = 'assassin_game_state';
+        let players = [];
+        let gameStarted = false;
+        let currentPlayerIndex = -1;
+
+        /**
+         * Sauvegarde l'état du jeu dans le localStorage.
+         */
+        function saveGameState() {
+            try {
+                const gameState = { players, gameStarted };
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(gameState));
+            } catch (e) {
+                console.error("Erreur lors de la sauvegarde dans le localStorage", e);
+            }
+        }
+
+        /**
+         * Charge l'état du jeu depuis le localStorage.
+         */
+        function loadGameState() {
+            try {
+                const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (storedState) {
+                    const gameState = JSON.parse(storedState);
+                    players = gameState.players || [];
+                    gameStarted = gameState.gameStarted || false;
+                }
+            } catch (e) {
+                console.error("Erreur lors du chargement depuis le localStorage", e);
+            }
+        }
+
+        /**
+         * Met à jour l'affichage de la liste des joueurs.
+         */
+        function renderPlayers() {
+            playersList.innerHTML = '';
+            if (players.length > 0) {
+                gameSection.classList.remove('hidden');
+            } else {
+                gameSection.classList.add('hidden');
+            }
+
+            // Filtrer les joueurs pour n'afficher que ceux qui ne sont pas éliminés
+            const activePlayers = players.filter(player => !player.eliminated);
+            
+            activePlayers.forEach((player, index) => {
+                const li = document.createElement('li');
+                li.className = "flex justify-between items-center bg-slate-700 p-3 rounded-lg shadow-md";
+                
+                const playerNameSpan = document.createElement('span');
+                playerNameSpan.textContent = player.name;
+                li.appendChild(playerNameSpan);
+
+                if (!gameStarted) {
+                    const removeBtn = document.createElement('button');
+                    removeBtn.textContent = '❌';
+                    removeBtn.className = "ml-4 p-1 rounded-full text-gray-400 hover:text-red-500 transition-colors";
+                    removeBtn.addEventListener('click', () => removePlayer(index));
+                    li.appendChild(removeBtn);
+                } else {
+                    li.classList.add('cursor-pointer', 'hover:bg-slate-600', 'transition-colors');
+                    // Trouver l'index original du joueur dans le tableau complet pour le révéler
+                    const originalIndex = players.findIndex(p => p.name === player.name);
+                    li.addEventListener('click', () => revealMission(originalIndex));
+                }
+                
+                playersList.appendChild(li);
+            });
+        }
+
+        /**
+         * Ajoute un nouveau joueur.
+         */
+        function addPlayer() {
+            const name = playerNameInput.value.trim();
+            if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
+                players.push({ name: name, target: null, mission: null, eliminated: false });
+                playerNameInput.value = '';
+                errorMessage.classList.add('hidden');
+                renderPlayers();
+                saveGameState();
+            } else {
+                errorMessage.classList.remove('hidden');
+            }
+        }
+
+        /**
+         * Supprime un joueur.
+         * @param {number} index L'index du joueur à supprimer.
+         */
+        function removePlayer(index) {
+            players.splice(index, 1);
+            renderPlayers();
+            saveGameState();
+        }
+
+        /**
+         * Distribue les cibles et les missions.
+         */
+        function assignMissions() {
+            const activePlayers = players.filter(p => !p.eliminated);
+            if (activePlayers.length < 2) {
+                alert("Il faut au moins 2 joueurs pour commencer !");
+                return;
+            }
+
+            const shuffledPlayers = [...activePlayers].sort(() => Math.random() - 0.5);
+            const shuffledMissions = [...missions].sort(() => Math.random() - 0.5);
+
+            for (let i = 0; i < shuffledPlayers.length; i++) {
+                const current = shuffledPlayers[i];
+                const target = shuffledPlayers[(i + 1) % shuffledPlayers.length];
+                
+                // Mettre à jour l'objet joueur original
+                const playerToUpdate = players.find(p => p.name === current.name);
+                if (playerToUpdate) {
+                    playerToUpdate.target = target.name;
+                    playerToUpdate.mission = shuffledMissions[i % shuffledMissions.length];
+                }
+            }
+            
+            gameStarted = true;
+            addPlayersSection.classList.add('hidden');
+            startGameBtn.classList.add('hidden');
+            renderPlayers();
+            saveGameState();
+        }
+
+        /**
+         * Affiche la mission et la cible d'un joueur dans une modale.
+         * @param {number} index L'index du joueur.
+         */
+        function revealMission(index) {
+            currentPlayerIndex = index;
+            const player = players[currentPlayerIndex];
+
+            playerTargetDisplay.textContent = player.target;
+            playerMissionDisplay.textContent = player.mission;
+            
+            missionModal.classList.remove('hidden');
+            completeMissionBtn.dataset.playerIndex = index;
+        }
+
+        /**
+         * Gère la complétion d'une mission.
+         */
+        function completeMission() {
+            const playerIndex = parseInt(completeMissionBtn.dataset.playerIndex, 10);
+            const player = players[playerIndex];
+            
+            const eliminatedPlayer = players.find(p => p.name === player.target);
+            if (eliminatedPlayer) {
+                eliminatedPlayer.eliminated = true;
+                
+                // Le joueur qui vient de tuer prend la cible et la mission de sa victime
+                player.target = eliminatedPlayer.target;
+                player.mission = eliminatedPlayer.mission;
+            }
+
+            missionModal.classList.add('hidden');
+            
+            const remainingPlayers = players.filter(p => !p.eliminated);
+            if (remainingPlayers.length === 1) {
+                const winner = remainingPlayers[0];
+                winnerNameDisplay.textContent = winner.name;
+                winModal.classList.remove('hidden');
+            } else {
+                renderPlayers();
+                saveGameState();
+            }
+        }
+        
+        /**
+         * Gère le bouton pour commencer la partie.
+         */
+        function handleGameStart() {
+            if (players.length > 1) {
+                assignMissions();
+            } else {
+                alert("Ajoutez au moins deux joueurs pour commencer.");
+            }
+        }
+        
+        /**
+         * Réinitialise le jeu.
+         */
+        function resetGame() {
+            localStorage.removeItem(LOCAL_STORAGE_KEY);
+            window.location.reload();
+        }
+
+        // Événements
+        addPlayerBtn.addEventListener('click', addPlayer);
+        playerNameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                addPlayer();
+            }
+        });
+        startGameBtn.addEventListener('click', handleGameStart);
+        resetGameBtn.addEventListener('click', resetGame);
+        hideMissionBtn.addEventListener('click', () => {
+            missionModal.classList.add('hidden');
+        });
+        completeMissionBtn.addEventListener('click', completeMission);
+        newGameBtn.addEventListener('click', resetGame);
+
+        // Initialisation
+        window.onload = function() {
+            loadGameState();
+            if (gameStarted) {
+                addPlayersSection.classList.add('hidden');
+                gameSection.classList.remove('hidden');
+                startGameBtn.classList.add('hidden');
+            }
+            renderPlayers();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil des Jeux de Soirée</title>
+    <!-- Intégration de Tailwind CSS pour un style moderne et cohérent -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* Styles de base pour un thème sombre */
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+        
+        /* Styles pour les cartes de jeu */
+        .game-card {
+            @apply p-6 bg-slate-800 rounded-2xl shadow-xl transition-all duration-300 hover:bg-slate-700 hover:scale-[1.03] flex flex-col items-center text-center space-y-3 border-b-4 border-transparent hover:border-pink-500 transform cursor-pointer;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen p-8 flex flex-col items-center">
+    <header class="text-center mb-12 mt-6 max-w-4xl w-full">
+        <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-600">
+            🎉 La Soirée Jeux est Lancée 🎉
+        </h1>
+        <p class="mt-4 text-lg md:text-xl text-slate-400 font-medium">
+            Sélectionnez un jeu ci-dessous pour lancer l'activité de votre choix.
+        </p>
+    </header>
+
+    <!-- La grille est maintenant de 5 éléments (4 jeux + l'iceberg) -->
+    <main class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl w-full">
+        
+        <!-- Carte 1 : Jeu de l'Assassin -->
+        <a href="assassin.html" class="game-card">
+            <span class="text-5xl">🔪</span>
+            <h2 class="text-xl font-bold text-white">Jeu de l'Assassin</h2>
+            <p class="text-slate-400 text-sm">Distribuez les cibles et les missions secrètes entre les joueurs.</p>
+        </a>
+
+        <!-- Carte 2 : Jeu du Killer (Loup-Garou simplifé) -->
+        <a href="killer.html" class="game-card">
+            <span class="text-5xl">🐺</span>
+            <h2 class="text-xl font-bold text-white">Jeu du Killer</h2>
+            <p class="text-slate-400 text-sm">Attribution des rôles cachés (tueur, policier, etc.) pour la partie.</p>
+        </a>
+
+        <!-- Carte 3 : Tournament BeerPong -->
+        <a href="beerpong.html" class="game-card">
+            <span class="text-5xl">🍻</span>
+            <h2 class="text-xl font-bold text-white">Tournoi BeerPong</h2>
+            <p class="text-slate-400 text-sm">Gérez l'arbre de tournoi pour vos équipes et suivez les scores.</p>
+        </a>
+
+        <!-- Carte 4 : Bingo de Soirée -->
+        <a href="bingo.html" class="game-card">
+            <span class="text-5xl">✅</span>
+            <h2 class="text-xl font-bold text-white">Bingo de Soirée</h2>
+            <p class="text-slate-400 text-sm">Générateur de grille et outil de suivi pour les cases validées.</p>
+        </a>
+        
+        <!-- NOUVELLE CARTE : Iceberg de Références -->
+        <a href="iceberg.html" class="game-card border-pink-500 bg-slate-700 hover:bg-slate-600">
+            <span class="text-5xl">❄️</span>
+            <h2 class="text-xl font-bold text-pink-400">L'Iceberg</h2>
+            <p class="text-slate-300 text-sm">Visualisez les références de la soirée, du plus connu au plus obscur.</p>
+        </a>
+
+    </main>
+    
+    <footer class="mt-16 text-center text-sm text-slate-500">
+        <p>Veuillez vous assurer que tous les fichiers (.html) se trouvent dans le même répertoire pour garantir que les liens fonctionnent correctement.</p>
+    </footer>
+</body>
+</html>
