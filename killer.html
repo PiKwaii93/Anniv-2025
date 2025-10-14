@@ -20,249 +20,258 @@
             from { opacity: 0; transform: scale(0.9); }
             to { opacity: 1; transform: scale(1); }
         }
+        .rule-card {
+            @apply bg-slate-700 p-6 rounded-xl border border-slate-600 shadow-lg;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
     <div class="container mx-auto max-w-2xl p-6 bg-slate-800 rounded-3xl shadow-2xl flex flex-col items-center space-y-8">
-        <div class="text-center">
-            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white mb-2">Jeu du Killer</h1>
-            <p class="text-gray-400 text-lg">Distribuez les rôles et commencez la partie !</p>
-        </div>
-
-        <!-- Section pour ajouter des joueurs -->
-        <div id="add-players-section" class="w-full space-y-4">
-            <h2 class="text-2xl font-bold text-center">Ajouter les joueurs</h2>
-            <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="player-name-input" placeholder="Nom du joueur" class="flex-grow p-3 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all">
-                <button id="add-player-btn" class="bg-red-600 hover:bg-red-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                    Ajouter
-                </button>
-            </div>
-            <div id="error-message" class="text-red-400 text-center hidden">Veuillez entrer un nom valide.</div>
-        </div>
         
-        <!-- Section pour la liste des joueurs et les actions du jeu -->
-        <div id="game-section" class="w-full space-y-6 hidden">
-            <h2 class="text-2xl font-bold text-center">Liste des joueurs</h2>
-            <ul id="players-list" class="space-y-2 text-center text-lg"></ul>
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <button id="start-game-btn" class="bg-green-600 hover:bg-green-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                    Distribuer les rôles
-                </button>
-                <button id="reset-game-btn" class="bg-gray-600 hover:bg-gray-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                    Réinitialiser
-                </button>
-            </div>
-        </div>
+        <header class="text-center w-full">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text" style="background-image: linear-gradient(45deg, #f87171, #ef4444);">
+                Jeu du Killer 🔪
+            </h1>
+            <p class="mt-2 text-slate-400">Attribution des rôles et règles du jeu.</p>
+        </header>
 
-        <!-- Modal pour révéler le rôle -->
-        <div id="role-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role">
-            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
-                <h2 class="text-4xl font-bold">Votre Rôle est...</h2>
-                <p id="player-role" class="text-6xl font-black text-red-500"></p>
-                <p id="role-description" class="text-lg text-gray-400"></p>
-                <button id="hide-role-btn" class="bg-red-600 hover:bg-red-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                    Cacher
+        <!-- Zone d'affichage des règles -->
+        <section id="rulesSection" class="w-full space-y-4">
+            <button id="toggleRulesBtn" class="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Afficher les Règles du Jeu
+            </button>
+            
+            <div id="rulesContent" class="rule-card hidden space-y-6">
+                <h2 class="text-2xl font-bold text-red-400 border-b border-slate-600 pb-2">Règlement Complet</h2>
+
+                <!-- Rôles -->
+                <div>
+                    <p class="text-xl font-bold text-red-500 mb-1">🔪 Le Tueur (Killer)</p>
+                    <p class="text-sm text-slate-300 ml-4">
+                        Objectif : <strong>Éliminer tous les Citoyens</strong>. Pour "tuer", vous devez **créer un contact visuel puis effectuer un clin d'œil** à votre victime.
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xl font-bold text-blue-500 mb-1">🕵️ L'Enquêteur</p>
+                    <p class="text-sm text-slate-300 ml-4">
+                        Objectif : <strong>Identifier le Tueur</strong>. Accusez à haute voix. Si vous avez raison, vous gagnez. Si vous vous trompez, vous êtes éliminé.
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xl font-bold text-green-500 mb-1">🧍 Le Citoyen</p>
+                    <p class="text-sm text-slate-300 ml-4">
+                        Objectif : Survivre. Si vous recevez un clin d'œil, attendez quelques secondes, puis <strong>exagérez votre mort</strong> de manière visible pour informer les autres joueurs.
+                    </p>
+                </div>
+
+                <h3 class="text-xl font-bold mt-4 text-yellow-400">Conditions de Victoire</h3>
+                <ul class="list-disc list-inside space-y-1 text-sm text-slate-300 ml-4">
+                    <li>Le Tueur gagne si tous les Citoyens sont éliminés.</li>
+                    <li>L'Enquêteur (et les Citoyens) gagnent si le Tueur est démasqué.</li>
+                </ul>
+            </div>
+        </section>
+        
+        <!-- Section Ajout des Joueurs -->
+        <section class="w-full space-y-4 pt-4 border-t border-slate-700">
+            <h2 class="text-2xl font-bold text-center text-white">1. Joueurs</h2>
+            <div class="flex space-x-2">
+                <input type="text" id="playerNameInput" placeholder="Nom du joueur..." class="flex-grow p-3 bg-slate-700 text-white rounded-lg border border-slate-600 focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                <button id="addPlayerBtn" class="px-5 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition duration-200 shadow-md transform hover:scale-[1.02]">
+                    +
                 </button>
             </div>
+            
+            <ul id="playersList" class="space-y-2 max-h-48 overflow-y-auto pr-2">
+                <!-- Les joueurs seront insérés ici -->
+            </ul>
+        </section>
+        
+        <!-- Boutons de Contrôle -->
+        <section class="w-full flex space-x-4 pt-4 border-t border-slate-700">
+            <button id="startGameBtn" class="flex-grow py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition duration-200 shadow-lg transform hover:scale-[1.02] disabled:opacity-50" disabled>
+                Attribuer les Rôles (Min. 3)
+            </button>
+            <button id="resetGameBtn" class="w-1/4 py-3 bg-slate-600 hover:bg-slate-700 text-white font-bold rounded-xl transition duration-200 shadow-lg transform hover:scale-[1.02]">
+                Reset
+            </button>
+        </section>
+        
+    </div>
+
+    <!-- Modale d'Affichage de Rôle -->
+    <div id="roleModal" class="fixed inset-0 bg-black bg-opacity-75 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-700 p-8 rounded-2xl shadow-2xl text-center reveal-role max-w-sm w-full">
+            <p class="text-slate-400 text-lg mb-4">Ton rôle est :</p>
+            <h2 id="currentRoleDisplay" class="text-5xl font-extrabold mb-6 text-red-400">RÔLE</h2>
+            <button id="hideRoleBtn" class="py-2 px-6 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition duration-200">
+                Masquer (Passe au joueur suivant)
+            </button>
         </div>
     </div>
-    <footer class="mt-16 text-center text-sm text-pink-400 font-medium">
-        <!-- Bouton de retour -->
-        <a href="index.html" class="mt-10 px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50 inline-flex items-center justify-center">
-            <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
-        </a>
-    </footer>
 
+    <!-- Script JS -->
     <script>
-        // Références aux éléments du DOM
-        const playerNameInput = document.getElementById('player-name-input');
-        const addPlayerBtn = document.getElementById('add-player-btn');
-        const playersList = document.getElementById('players-list');
-        const startGameBtn = document.getElementById('start-game-btn');
-        const resetGameBtn = document.getElementById('reset-game-btn');
-        const addPlayersSection = document.getElementById('add-players-section');
-        const gameSection = document.getElementById('game-section');
-        const roleModal = document.getElementById('role-modal');
-        const playerRoleDisplay = document.getElementById('player-role');
-        const roleDescriptionDisplay = document.getElementById('role-description');
-        const hideRoleBtn = document.getElementById('hide-role-btn');
-        const errorMessage = document.getElementById('error-message');
-
-        // Constantes et état
-        const LOCAL_STORAGE_KEY = 'killer_game_state';
+        // Constantes et Variables Globales
+        const ROLES = ['Tueur', 'Enquêteur', 'Citoyen'];
+        const LOCAL_STORAGE_KEY = 'killerGame';
         let players = [];
         let rolesAssigned = false;
+        let nextPlayerIndex = 0;
 
-        /**
-         * Sauvegarde l'état du jeu dans le localStorage.
-         */
+        // Éléments du DOM
+        const playerNameInput = document.getElementById('playerNameInput');
+        const addPlayerBtn = document.getElementById('addPlayerBtn');
+        const playersList = document.getElementById('playersList');
+        const startGameBtn = document.getElementById('startGameBtn');
+        const resetGameBtn = document.getElementById('resetGameBtn');
+        const roleModal = document.getElementById('roleModal');
+        const currentRoleDisplay = document.getElementById('currentRoleDisplay');
+        const hideRoleBtn = document.getElementById('hideRoleBtn');
+        const rulesContent = document.getElementById('rulesContent');
+        const toggleRulesBtn = document.getElementById('toggleRulesBtn');
+
+        // --- Fonctions de Stockage ---
         function saveGameState() {
-            try {
-                const gameState = { players, rolesAssigned };
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(gameState));
-            } catch (e) {
-                console.error("Erreur lors de la sauvegarde dans le localStorage", e);
-            }
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ players, rolesAssigned }));
         }
 
-        /**
-         * Charge l'état du jeu depuis le localStorage.
-         */
         function loadGameState() {
-            try {
-                const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (storedState) {
-                    const gameState = JSON.parse(storedState);
-                    players = gameState.players || [];
-                    rolesAssigned = gameState.rolesAssigned || false;
-                }
-            } catch (e) {
-                console.error("Erreur lors du chargement depuis le localStorage", e);
+            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (stored) {
+                const state = JSON.parse(stored);
+                players = state.players || [];
+                rolesAssigned = state.rolesAssigned || false;
             }
         }
 
-        /**
-         * Met à jour l'affichage de la liste des joueurs.
-         */
+        // --- Fonctions de Rendu ---
+        function updateStartButton() {
+            startGameBtn.disabled = players.length < 3;
+            if (rolesAssigned) {
+                startGameBtn.textContent = 'Voir les Rôles attribués';
+            } else {
+                startGameBtn.textContent = `Attribuer les Rôles (Min. 3)`;
+            }
+        }
+
         function renderPlayers() {
             playersList.innerHTML = '';
-            if (players.length > 0) {
-                gameSection.classList.remove('hidden');
-            } else {
-                gameSection.classList.add('hidden');
-            }
-
             players.forEach((player, index) => {
                 const li = document.createElement('li');
-                li.className = "flex justify-between items-center bg-slate-700 p-3 rounded-lg shadow-md";
+                li.className = 'flex items-center justify-between p-2 bg-slate-700/50 rounded-lg';
                 
-                const playerNameSpan = document.createElement('span');
-                playerNameSpan.textContent = player.name;
-                li.appendChild(playerNameSpan);
-
-                if (!rolesAssigned) {
-                    const removeBtn = document.createElement('button');
-                    removeBtn.textContent = '❌';
-                    removeBtn.className = "ml-4 p-1 rounded-full text-gray-400 hover:text-red-500 transition-colors";
-                    removeBtn.addEventListener('click', () => removePlayer(index));
-                    li.appendChild(removeBtn);
-                } else {
-                    li.classList.add('cursor-pointer', 'hover:bg-slate-600', 'transition-colors');
-                    li.addEventListener('click', () => revealRole(player));
+                // Nom du joueur
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = player.name;
+                nameSpan.className = 'text-lg';
+                
+                // Rôle affiché après attribution (si la partie est lancée)
+                if (rolesAssigned && player.role) {
+                    const roleSpan = document.createElement('span');
+                    roleSpan.textContent = ` (${player.role})`;
+                    roleSpan.className = 'font-bold ml-2 text-yellow-400';
+                    nameSpan.appendChild(roleSpan);
                 }
+
+                li.appendChild(nameSpan);
+
+                // Bouton Supprimer
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '✕';
+                deleteBtn.className = 'text-red-400 hover:text-red-500 transition';
+                deleteBtn.onclick = () => removePlayer(index);
                 
+                li.appendChild(deleteBtn);
                 playersList.appendChild(li);
             });
-        }
-
-        /**
-         * Ajoute un nouveau joueur.
-         */
-        function addPlayer() {
-            const name = playerNameInput.value.trim();
-            if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
-                players.push({ name: name, role: null });
-                playerNameInput.value = '';
-                errorMessage.classList.add('hidden');
-                renderPlayers();
-                saveGameState();
-            } else {
-                errorMessage.classList.remove('hidden');
-            }
-        }
-
-        /**
-         * Supprime un joueur.
-         * @param {number} index L'index du joueur à supprimer.
-         */
-        function removePlayer(index) {
-            players.splice(index, 1);
-            renderPlayers();
+            updateStartButton();
             saveGameState();
         }
 
-        /**
-         * Distribue les rôles aux joueurs.
-         */
-        function assignRoles() {
-            if (players.length < 3) {
-                alert("Il faut au moins 3 joueurs pour commencer !"); // Utilisation d'un message d'alerte simple pour l'exemple
-                return;
-            }
+        // --- Logique du Jeu ---
 
-            const roles = [];
-            
-            // Assignation des rôles basée sur le nombre de joueurs
-            roles.push('Tueur');
-            if (players.length >= 8) {
-                roles.push('Tueur');
+        function addPlayer() {
+            const name = playerNameInput.value.trim();
+            if (name && players.length < 20) { // Limite arbitraire
+                players.push({ name: name, role: null });
+                playerNameInput.value = '';
+                renderPlayers();
             }
-            roles.push('Détective');
-            if (players.length >= 6) {
-                roles.push('Détective');
+        }
+
+        function removePlayer(index) {
+            players.splice(index, 1);
+            rolesAssigned = false; // Réinitialiser si un joueur est retiré
+            renderPlayers();
+        }
+        
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
             }
-            
-            // Le reste sont des Citoyens
-            while (roles.length < players.length) {
+            return array;
+        }
+
+        function assignRoles() {
+            if (players.length < 3) return;
+
+            // Déterminer les rôles : 1 Tueur, 1 Enquêteur, le reste Citoyens
+            let roles = ['Tueur', 'Enquêteur'];
+            const numCitizens = players.length - 2;
+            for (let i = 0; i < numCitizens; i++) {
                 roles.push('Citoyen');
             }
+            
+            // Mélanger les rôles
+            roles = shuffle(roles);
 
-            // Mélange des rôles et assignation
-            const shuffledRoles = roles.sort(() => Math.random() - 0.5);
+            // Attribuer les rôles aux joueurs
             players.forEach((player, index) => {
-                player.role = shuffledRoles[index];
+                player.role = roles[index];
             });
 
             rolesAssigned = true;
-            startGameBtn.textContent = 'Révéler les rôles';
-            startGameBtn.classList.add('bg-purple-600', 'hover:bg-purple-700');
-            startGameBtn.classList.remove('bg-green-600', 'hover:bg-green-700');
-            renderPlayers();
+            nextPlayerIndex = 0; // Commencer la distribution
+            startGameBtn.textContent = 'Démarrer la lecture des rôles';
             saveGameState();
+            
+            // Afficher le premier rôle
+            showNextRole();
         }
-
-        /**
-         * Affiche le rôle d'un joueur dans une modale.
-         * @param {Object} player L'objet joueur.
-         */
-        function revealRole(player) {
-            let description = '';
-            let roleColor = 'text-white';
-
-            switch (player.role) {
-                case 'Tueur':
-                    description = "Votre but est d'éliminer discrètement les autres joueurs.";
-                    roleColor = 'text-red-500';
-                    break;
-                case 'Détective':
-                    description = "Votre but est de découvrir qui est le tueur.";
-                    roleColor = 'text-blue-500';
-                    break;
-                case 'Citoyen':
-                    description = "Votre but est de survivre et d'aider à trouver le tueur.";
-                    roleColor = 'text-green-500';
-                    break;
+        
+        function showNextRole() {
+            if (nextPlayerIndex < players.length) {
+                const player = players[nextPlayerIndex];
+                currentRoleDisplay.textContent = player.role;
+                currentRoleDisplay.className = `text-5xl font-extrabold mb-6 reveal-role ${getRoleColor(player.role)}`;
+                roleModal.querySelector('p').textContent = `C'est le tour de ${player.name} :`;
+                roleModal.classList.remove('hidden');
+                nextPlayerIndex++;
+            } else {
+                // Tous les rôles ont été distribués
+                roleModal.classList.add('hidden');
+                startGameBtn.textContent = 'Rôles attribués. Démarrer le jeu !';
+                renderPlayers(); // Afficher les rôles de manière permanente si l'attribution est terminée
             }
-
-            playerRoleDisplay.textContent = player.role;
-            playerRoleDisplay.className = `text-6xl font-black ${roleColor}`;
-            roleDescriptionDisplay.textContent = description;
-            roleModal.classList.remove('hidden');
         }
 
-        /**
-         * Gère le bouton pour démarrer ou révéler les rôles.
-         */
+        function getRoleColor(role) {
+            switch(role) {
+                case 'Tueur': return 'text-red-400';
+                case 'Enquêteur': return 'text-blue-400';
+                case 'Citoyen': return 'text-green-400';
+                default: return 'text-white';
+            }
+        }
+
+        // --- Gestion des Événements ---
+
         function handleGameStart() {
             if (rolesAssigned) {
-                players.forEach(player => {
-                    const playerElement = document.querySelector(`li > span[textContent="${player.name}"]`).closest('li');
-                    const roleSpan = document.createElement('span');
-                    roleSpan.textContent = ` (${player.role})`;
-                    roleSpan.className = 'font-bold ml-2';
-                    playerElement.appendChild(roleSpan);
-                });
+                // Si les rôles sont déjà attribués, relancer la lecture (ou révéler)
+                renderPlayers();
                 startGameBtn.classList.add('hidden');
                 resetGameBtn.textContent = 'Nouvelle partie';
             } else {
@@ -282,14 +291,21 @@
             localStorage.removeItem(LOCAL_STORAGE_KEY);
             window.location.reload();
         });
-        hideRoleBtn.addEventListener('click', () => {
-            roleModal.classList.add('hidden');
+        
+        hideRoleBtn.addEventListener('click', showNextRole);
+
+        // Toggle des règles
+        toggleRulesBtn.addEventListener('click', () => {
+            const isHidden = rulesContent.classList.toggle('hidden');
+            toggleRulesBtn.textContent = isHidden ? 'Afficher les Règles du Jeu' : 'Masquer les Règles du Jeu';
         });
 
         // Initialisation
         window.onload = function() {
             loadGameState();
             renderPlayers();
+            // Assurer que le bouton de démarrage reflète l'état actuel
+            updateStartButton();
         };
     </script>
 </body>

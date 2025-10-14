@@ -23,6 +23,14 @@
         .mission-completed-btn {
             background-color: #22c55e;
         }
+        /* Style inspiré du killer.html pour les règles */
+        .rule-card {
+            background-color: #334155; /* bg-slate-700 */
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            border: 1px solid #475569; /* border-slate-600 */
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-lg */
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
@@ -32,7 +40,39 @@
             <p class="text-gray-400 text-lg">Distribuez les missions et éliminez votre cible !</p>
         </div>
 
-        <!-- Section pour ajouter des joueurs -->
+        <section id="rulesSection" class="w-full space-y-4">
+            <button id="toggleRulesBtn" class="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                Afficher les Règles du Jeu
+            </button>
+            
+            <div id="rulesContent" class="rule-card hidden space-y-4">
+                <h2 class="text-2xl font-bold text-purple-400 border-b border-slate-600 pb-2">Règlement Complet</h2>
+
+                <div>
+                    <p class="text-xl font-bold text-red-400 mb-1">🎯 Cible et Mission</p>
+                    <p class="text-sm text-slate-300 ml-4">
+                        Chaque joueur reçoit une **cible** (un autre joueur) et une **mission** secrète à accomplir auprès de cette cible.
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xl font-bold text-green-400 mb-1">🔪 Élimination</p>
+                    <p class="text-sm text-slate-300 ml-4">
+                        Pour **éliminer** votre cible, vous devez réussir la mission qui vous a été attribuée (ex: "Faire un compliment à votre cible."). Une fois réussie, vous appuyez sur **"Mission accomplie"**.
+                    </p>
+                </div>
+                <div>
+                    <p class="text-xl font-bold text-blue-400 mb-1">🔄 Succession</p>
+                    <p class="text-sm text-slate-300 ml-4">
+                        Lorsque vous éliminez votre cible, vous **prenez automatiquement la cible et la mission de votre victime**.
+                    </p>
+                </div>
+
+                <h3 class="text-xl font-bold mt-4 text-yellow-400">Condition de Victoire</h3>
+                <p class="text-sm text-slate-300 ml-4">
+                    Le joueur gagne s'il est le **dernier assassin en vie** (tous les autres joueurs ont été éliminés).
+                </p>
+            </div>
+        </section>
         <div id="add-players-section" class="w-full space-y-4">
             <h2 class="text-2xl font-bold text-center">Ajouter les joueurs</h2>
             <div class="flex flex-col md:flex-row gap-4">
@@ -44,7 +84,6 @@
             <div id="error-message" class="text-red-400 text-center hidden">Veuillez entrer un nom valide.</div>
         </div>
 
-        <!-- Section pour la liste des joueurs et les actions du jeu -->
         <div id="game-section" class="w-full space-y-6 hidden">
             <h2 class="text-2xl font-bold text-center">Joueurs</h2>
             <ul id="players-list" class="space-y-2 text-center text-lg"></ul>
@@ -58,7 +97,6 @@
             </div>
         </div>
 
-        <!-- Modal pour révéler la mission et la cible -->
         <div id="mission-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role z-50">
             <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-lg w-full space-y-6">
                 <h2 class="text-4xl font-bold">Votre Mission</h2>
@@ -79,7 +117,6 @@
             </div>
         </div>
         
-        <!-- Modal de victoire -->
         <div id="win-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role z-50">
             <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
                 <h2 class="text-4xl font-bold text-green-500">VICTOIRE !</h2>
@@ -92,7 +129,6 @@
         </div>
     </div>
     <footer class="mt-16 text-center text-sm text-pink-400 font-medium">
-        <!-- Bouton de retour -->
         <a href="index.html" class="mt-10 px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50 inline-flex items-center justify-center">
             <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
         </a>
@@ -136,6 +172,8 @@
         const winnerNameDisplay = document.getElementById('winner-name');
         const newGameBtn = document.getElementById('new-game-btn');
         const errorMessage = document.getElementById('error-message');
+        const rulesContent = document.getElementById('rulesContent'); // Ajout de l'élément des règles
+        const toggleRulesBtn = document.getElementById('toggleRulesBtn'); // Ajout du bouton bascule
 
         // Constantes et état
         const LOCAL_STORAGE_KEY = 'assassin_game_state';
@@ -345,6 +383,12 @@
         });
         completeMissionBtn.addEventListener('click', completeMission);
         newGameBtn.addEventListener('click', resetGame);
+
+        // Toggle des règles (ajouté)
+        toggleRulesBtn.addEventListener('click', () => {
+            const isHidden = rulesContent.classList.toggle('hidden');
+            toggleRulesBtn.textContent = isHidden ? 'Afficher les Règles du Jeu' : 'Masquer les Règles du Jeu';
+        });
 
         // Initialisation
         window.onload = function() {
