@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iceberg de Références</title>
-    <!-- Intégration de Tailwind CSS pour un style moderne et cohérent -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,15 +14,13 @@
             background-color: #0f172a; 
         }
         .container {
-            /* Fixe la largeur maximale du contenu */
             max-width: 900px;
         }
         .placeholder-image {
-            /* Styles spécifiques pour l'image de l'iceberg */
             height: auto;
-            border-radius: 1rem; /* rounded-xl */
+            border-radius: 1rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-            border: 4px solid #334155; /* slate-700 */
+            border: 4px solid #334155;
         }
         .iceberg-title {
             background-image: linear-gradient(45deg, #60a5fa, #3b82f6, #1d4ed8);
@@ -42,7 +39,7 @@
                 L'Iceberg de nos Références 🧊
             </h1>
             <p class="mt-4 text-xl text-slate-400 font-medium">
-                Du plus évident au plus profond (et obscur).
+                Du plus évident au plus profond (et souvent incompréhensible).
             </p>
         </header>
 
@@ -50,39 +47,47 @@
         <section class="w-full mt-6">
             <h2 class="text-3xl font-bold text-center mb-6 text-slate-200">Visuel de l'Iceberg</h2>
             
-            <!-- 
-                NOTE: C'est l'emplacement où vous devez insérer votre image d'iceberg. 
-                Remplacez l'URL du placeholder ci-dessous par le chemin ou l'URL de votre propre image. 
-            -->
             <img 
-                src="https://placehold.co/900x500/0f172a/94a3b8?text=Votre+Image+Iceberg+Ici" 
+                src="ICEBERG.png" 
                 alt="Image de l'Iceberg de Références" 
                 class="placeholder-image w-full"
                 onerror="this.onerror=null; this.src='https://placehold.co/900x500/0f172a/94a3b8?text=Image+Introuvable';"
             >
 
             <p class="mt-4 text-center text-sm text-slate-400">
-                L'image ci-dessus représente la structure de l'iceberg, allant des références les plus connues (le sommet) aux plus obscures (la base submergée).
+                L’image ci-dessus illustre toutes les références et délires du groupe — des blagues de soirées les plus connues jusqu’aux secrets les plus enfouis de nos discussions.
             </p>
         </section>
 
-        <!-- Section explicative (optionnelle, à développer) -->
+        <!-- Section explicative adaptée -->
         <section class="w-full mt-8 pt-6 border-t border-slate-700">
             <h2 class="text-3xl font-bold text-slate-200 mb-4 text-center">Niveaux de Profondeur</h2>
             <div class="space-y-4 text-lg text-slate-300">
                 <p>
-                    <strong>Niveau 1 (Surface) :</strong> Les références que tout le monde connaît. Les classiques de la culture pop.
+                    <strong>Niveau 1 — La surface :</strong> Les références accessibles à tous. 
+                    C’est le monde des soirées, des défis classiques et des private jokes légères : 
+                    les moments qu’on peut évoquer sans explication, ceux qui font rire même les nouveaux venus.
                 </p>
                 <p>
-                    <strong>Niveau 2 :</strong> Références spécifiques à un groupe ou à une époque, nécessitant un peu de contexte.
+                    <strong>Niveau 2 — Sous la glace :</strong> Ici commencent les références du cercle intérieur. 
+                    Des souvenirs partagés par ceux qui étaient là “ce soir-là”, les anecdotes un peu plus situées, 
+                    les phrases cultes et les scènes devenues mythiques au sein du groupe.
                 </p>
                 <p>
-                    <strong>Niveau 3 et au-delà (Profond) :</strong> Références extrêmement niche, blagues internes, ou sujets très spécifiques et obscurs.
+                    <strong>Niveau 3 — Les abysses :</strong> Là où tout devient obscur pour les non-initiés. 
+                    Blagues incompréhensibles, histoires légendaires, événements étranges et citations 
+                    qu’il faut connaître pour saisir le sens. Ce niveau, c’est le vrai lore du groupe.
+                </p>
+                <p>
+                    <strong>Niveau 4 et plus — Les profondeurs interdites :</strong> 
+                    Le royaume du chaos pur : références cryptiques, dossiers compromettants, 
+                    challenges oubliés, et histoires dont seuls quelques élus se souviennent encore.
+                    Si tu comprends ces mentions… c’est que tu fais vraiment partie du mythe.
                 </p>
             </div>
         </section>
 
-        <!-- Bouton de retour à l'accueil -->
+        <!-- Bouton de retour -->
         <a href="index.html" class="mt-10 px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50">
             <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
         </a>
