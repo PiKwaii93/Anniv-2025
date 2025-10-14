@@ -9,610 +9,588 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #0f172a; 
+        }
         .reveal { animation: fadeIn 0.35s ease-in-out; }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
+
+        /* --- Styles du Bracket (Arbre de tournoi) --- */
+
         /* Style des lignes de l'arbre de tournoi */
         .bracket-match {
             position: relative;
         }
+
+        /* Ligne horizontale sortant du match */
         .bracket-match::after {
             content: '';
             position: absolute;
             top: 50%;
             left: 100%;
             height: 2px;
-            width: 2rem; /* Longueur de la ligne */
-            background-color: #4b5563;
+            /* Raccourci sur mobile, plus long sur desktop */
+            width: 1.5rem; 
+            @media (min-width: 768px) {
+                width: 2rem; 
+            }
+            background-color: #4b5563; /* slate-600 */
             transform: translateY(-50%);
+            z-index: 5;
         }
-        .bracket-match.final-match::after {
-            width: 0;
-        }
-        .round-column {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            min-width: 280px;
-            flex-shrink: 0;
-            padding: 1.5rem;
-            background-color: #1f2937;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-        }
-        .match-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-        .match-container .bracket-node {
-            margin-top: 0;
-        }
-        .line {
+
+        /* Ligne verticale entre les matchs */
+        .bracket-round > div:not(:last-child) > .bracket-match::before {
+            content: '';
             position: absolute;
-            background-color: #4b5563;
-            z-index: 10;
-        }
-        .line.horizontal {
-            height: 2px;
-        }
-        .line.vertical {
+            top: 50%;
+            left: calc(100% + 1.5rem); /* Positionne après la ligne horizontale mobile */
+            @media (min-width: 768px) {
+                left: calc(100% + 2rem); /* Positionne après la ligne horizontale desktop */
+            }
             width: 2px;
+            background-color: #4b5563; /* slate-600 */
+            transform: translateY(-50%);
+            z-index: 4;
         }
-        /* Style des noeuds de match */
-        .bracket-node {
-            background-color: #374151;
-            padding: 1rem;
-            border-radius: 0.75rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-            position: relative;
-        }
-        .bracket-node:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.15);
-        }
-        .match-winner {
-            background-color: #10b981;
-            transform: scale(1.05);
-            font-weight: bold;
-        }
-        .match-loser {
-            opacity: 0.6;
-        }
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
+
+        /* Ajustement de la hauteur de la ligne verticale */
+        .bracket-round > div:nth-child(odd) > .bracket-match::before {
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            top: 0;
+            border-top-right-radius: 4px;
         }
-        .modal-content {
-            background-color: #1f2937;
-            padding: 2rem;
-            border-radius: 0.75rem;
-            text-align: center;
-            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        .bracket-round > div:nth-child(even) > .bracket-match::before {
+            height: 100%;
+            top: auto;
+            bottom: 0;
+            border-bottom-right-radius: 4px;
         }
-        .hidden {
+
+        /* Cache la ligne horizontale finale pour le gagnant qui passe au tour suivant */
+        .bracket-round:last-child .bracket-match::after {
             display: none;
+        }
+
+        /* Ajoute une petite queue au gagnant du match pour se connecter à la ligne verticale */
+        .bracket-round > div:not(:last-child) > .bracket-match.match-win::after {
+             background-color: #4b5563;
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen p-6 flex flex-col items-center">
-    <div class="container max-w-6xl w-full p-6 bg-slate-800 rounded-3xl shadow-2xl space-y-6">
-        <div class="text-center">
-            <h1 class="text-5xl font-bold tracking-tight mb-1">BeerPong Tournament</h1>
-            <p class="text-gray-400">Crée ton tournoi, saisis les scores et laisse l'arbre se mettre à jour automatiquement.</p>
-        </div>
+<body class="text-white min-h-screen p-4 md:p-8 flex flex-col items-center">
 
-        <!-- Input équipes -->
-        <div class="bg-slate-700 p-6 rounded-xl shadow-inner space-y-4">
-            <h2 class="text-2xl font-bold">Ajouter les équipes</h2>
-            <div class="flex flex-col md:flex-row gap-3">
-                <input id="team-input" type="text" placeholder="Nom de l'équipe (ex: Les Buveurs)" class="flex-grow p-3 rounded-lg bg-slate-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500">
-                <button id="add-team-btn" class="bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl font-bold shadow-lg transform hover:scale-105">Ajouter</button>
-                <button id="random-fill-btn" class="bg-purple-600 hover:bg-purple-700 px-4 py-3 rounded-xl font-bold shadow-lg transform hover:scale-105">Remplissage aléatoire</button>
+    <!-- Confirmation Modal Structure (Hidden by default) -->
+    <div id="confirmationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 reveal">
+        <div class="bg-slate-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border border-pink-500">
+            <p id="confirmMessage" class="text-lg font-semibold mb-6 text-center text-white"></p>
+            <div class="flex justify-around space-x-4">
+                <button id="confirmCancel" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Annuler</button>
+                <button id="confirmAccept" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Confirmer</button>
             </div>
-            <div class="flex items-center justify-between">
-                <p id="teams-count" class="text-gray-300">0 équipes</p>
-                <div class="space-x-2">
-                    <button id="generate-btn" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded-xl font-bold shadow-lg">Générer le tournoi</button>
-                    <button id="reset-btn" class="bg-gray-600 hover:bg-gray-700 px-4 py-2 rounded-xl font-bold shadow-lg">Réinitialiser</button>
+        </div>
+    </div>
+
+    <main class="max-w-7xl w-full">
+        
+        <header class="text-center mb-8 mt-4">
+            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-600">
+                🍻 Tournoi BeerPong 🍻
+            </h1>
+            <p class="mt-2 text-md md:text-xl text-slate-400 font-medium">
+                Gérez les équipes et suivez l'arbre de tournoi.
+            </p>
+        </header>
+
+        <!-- Section Inscription des Équipes -->
+        <section class="bg-slate-800 p-6 rounded-2xl shadow-xl mb-8 border border-slate-700">
+            <h2 class="text-2xl font-bold mb-4 text-pink-400">1. Équipes Participantes</h2>
+            <p class="text-sm text-slate-400 mb-4">Entrez les noms d'équipes séparés par des virgules ou des retours à la ligne (2 équipes minimum). L'arbre généré gérera automatiquement les "byes" (passer au tour suivant) si le nombre d'équipes n'est pas une puissance de 2.</p>
+            
+            <div class="flex flex-col md:flex-row gap-4">
+                <textarea id="teamInput" 
+                          rows="4"
+                          placeholder="Ex: Team A, Les Vainqueurs, Les Zinzins, ..."
+                          class="flex-grow bg-slate-700 text-white p-3 rounded-lg border border-slate-600 focus:border-pink-500 focus:ring focus:ring-pink-500 focus:ring-opacity-50 resize-none"></textarea>
+                
+                <div class="flex flex-col space-y-3">
+                    <button id="addTeamsBtn" 
+                            class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-150 transform hover:scale-105">
+                        Ajouter / Mettre à jour
+                    </button>
+                    <!-- Le bouton de génération est activé dès qu'il y a 2 équipes ou plus -->
+                    <button id="generateBtn" 
+                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-150 transform hover:scale-105">
+                        Générer l'Arbre !
+                    </button>
                 </div>
             </div>
-            <div id="teams-list" class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3"></div>
-        </div>
 
-        <!-- Bracket area -->
-        <div id="bracket-area" class="hidden bg-slate-800 p-6 rounded-xl">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-2xl font-bold">Arbre du tournoi</h2>
-                <div class="flex items-center gap-3">
-                    <div id="champion-badge" class="hidden items-center gap-3 bg-yellow-500 text-slate-900 px-4 py-2 rounded-full font-bold">
-                        🏆 <span id="champion-name"></span>
-                    </div>
-                    <button id="download-state" class="bg-slate-700 hover:bg-slate-600 px-3 py-2 rounded-lg text-sm">Exporter JSON</button>
+            <!-- Liste des équipes inscrites -->
+            <div id="teamListContainer" class="mt-6 reveal">
+                <h3 class="text-lg font-semibold text-slate-300 mb-2">Liste actuelle (<span id="teamCount">0</span> équipes) :</h3>
+                <div id="teamList" class="flex flex-wrap gap-2 text-sm">
+                    <!-- Les badges d'équipe seront insérés ici -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Arbre de Tournoi -->
+        <section id="bracketArea" class="hidden bg-slate-800 p-4 md:p-6 rounded-2xl shadow-xl mb-8 border border-slate-700 reveal overflow-x-auto">
+            <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-4">
+                <h2 class="text-2xl font-bold text-pink-400">2. Arbre du Tournoi</h2>
+                <div class="flex flex-wrap justify-end gap-3">
+                    <button id="downloadBtn" 
+                            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-150">
+                        Télécharger l'état
+                    </button>
+                    <button id="resetBtn" 
+                            class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-150">
+                        Réinitialiser
+                    </button>
                 </div>
             </div>
 
-            <div id="rounds-container" class="w-full overflow-x-auto py-4">
-                <div id="rounds" class="flex gap-6 items-center"></div>
+            <!-- Badge Champion -->
+            <div id="championBadge" class="hidden text-center mb-6 reveal">
+                <p class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
+                    🏆 CHAMPION : <span id="championName" class="text-yellow-300"></span> 🏆
+                </p>
             </div>
-        </div>
 
-        <div class="text-center text-sm text-gray-400">Sauvegarde automatique dans ton navigateur. Le site fonctionne hors-ligne pour le tournoi en cours.</div>
-    </div>
-    
-    <!-- Modale de confirmation -->
-    <div id="alert-modal" class="modal hidden">
-        <div class="modal-content bg-slate-700 rounded-xl p-6 space-y-4">
-            <p id="alert-message" class="text-lg"></p>
-            <button id="alert-ok-btn" class="bg-red-600 hover:bg-red-700 text-white py-2 px-4 rounded-lg font-bold">OK</button>
-        </div>
-    </div>
-
-    <div id="confirm-modal" class="modal hidden">
-        <div class="modal-content bg-slate-700 rounded-xl p-6 space-y-4">
-            <p id="confirm-message" class="text-lg"></p>
-            <div class="flex justify-center gap-4">
-                <button id="confirm-yes-btn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg font-bold">Oui</button>
-                <button id="confirm-no-btn" class="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg font-bold">Non</button>
+            <!-- Conteneur du Bracket -->
+            <div id="bracketContainer" class="flex md:gap-12 gap-6 items-start">
+                <!-- Les tours seront injectés ici -->
             </div>
-        </div>
-    </div>
-    <footer class="mt-16 text-center text-sm text-pink-400 font-medium">
+        </section>
+        
+    </main>
+
+    <footer class="mt-8 text-center pb-12 w-full flex flex-col items-center">
+        <!-- Message personnalisé original -->
+        <p class="text-md text-pink-400 font-medium mb-6">
+            Géré par le meilleur des outils de soirée !
+        </p>
+
         <!-- Bouton de retour -->
-        <a href="index.html" class="mt-10 px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50 inline-flex items-center justify-center">
+        <a href="index.html" class="px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50">
             <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
         </a>
     </footer>
 
     <script>
-        // --- Constantes / utilitaires ---
-        const LOCAL_KEY = 'beerpong_tournament_v1';
-        const teamInput = document.getElementById('team-input');
-        const addTeamBtn = document.getElementById('add-team-btn');
-        const randomFillBtn = document.getElementById('random-fill-btn');
-        const teamsListEl = document.getElementById('teams-list');
-        const teamsCountEl = document.getElementById('teams-count');
-        const generateBtn = document.getElementById('generate-btn');
-        const resetBtn = document.getElementById('reset-btn');
-        const bracketArea = document.getElementById('bracket-area');
-        const roundsContainer = document.getElementById('rounds');
-        const championBadge = document.getElementById('champion-badge');
-        const championNameEl = document.getElementById('champion-name');
-        const downloadBtn = document.getElementById('download-state');
-        const alertModal = document.getElementById('alert-modal');
-        const alertMessage = document.getElementById('alert-message');
-        const alertOkBtn = document.getElementById('alert-ok-btn');
-        const confirmModal = document.getElementById('confirm-modal');
-        const confirmMessage = document.getElementById('confirm-message');
-        const confirmYesBtn = document.getElementById('confirm-yes-btn');
-        const confirmNoBtn = document.getElementById('confirm-no-btn');
-        
-        let teams = []; // array of { name }
-        let rounds = null; // array of rounds; each round is array of match objects
-        
-        function showAlert(message) {
-            alertMessage.textContent = message;
-            alertModal.classList.remove('hidden');
-            alertOkBtn.onclick = () => alertModal.classList.add('hidden');
-        }
+        // Utilisation de localStorage pour la persistance de l'état
+        const LOCAL_KEY = 'beerpongTournamentState';
 
-        function showConfirm(message, onYes, onNo) {
+        // Variables d'état
+        let teams = [];
+        let rounds = null;
+        let confirmCallback = null;
+        
+        // Références DOM
+        const teamInput = document.getElementById('teamInput');
+        const teamList = document.getElementById('teamList');
+        const teamCountSpan = document.getElementById('teamCount');
+        const addTeamsBtn = document.getElementById('addTeamsBtn');
+        const generateBtn = document.getElementById('generateBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const bracketArea = document.getElementById('bracketArea');
+        const bracketContainer = document.getElementById('bracketContainer');
+        const championBadge = document.getElementById('championBadge');
+        const championNameSpan = document.getElementById('championName');
+        const teamListContainer = document.getElementById('teamListContainer'); // Ajout de cette référence
+
+        // Références Modal
+        const confirmationModal = document.getElementById('confirmationModal');
+        const confirmMessage = document.getElementById('confirmMessage');
+        const confirmCancel = document.getElementById('confirmCancel');
+        const confirmAccept = document.getElementById('confirmAccept');
+
+
+        // --- Fonctions d'Utilité et d'État ---
+
+        // Affiche la modale de confirmation
+        function showConfirm(message, callback) {
             confirmMessage.textContent = message;
-            confirmModal.classList.remove('hidden');
-            
-            const handleYes = () => {
-                confirmModal.classList.add('hidden');
-                onYes();
-                confirmYesBtn.removeEventListener('click', handleYes);
-                confirmNoBtn.removeEventListener('click', handleNo);
-            };
-
-            const handleNo = () => {
-                confirmModal.classList.add('hidden');
-                if (onNo) onNo();
-                confirmYesBtn.removeEventListener('click', handleYes);
-                confirmNoBtn.removeEventListener('click', handleNo);
-            };
-
-            confirmYesBtn.addEventListener('click', handleYes);
-            confirmNoBtn.addEventListener('click', handleNo);
+            confirmCallback = callback;
+            confirmationModal.classList.remove('hidden');
         }
 
-        // --- Helpers ---
+        // Cache la modale de confirmation
+        function hideConfirm() {
+            confirmationModal.classList.add('hidden');
+            confirmCallback = null;
+        }
+
+        // Sauvegarde l'état du tournoi dans localStorage
         function saveState() {
-            const state = { teams, rounds };
-            localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
+            localStorage.setItem(LOCAL_KEY, JSON.stringify({ teams, rounds }));
         }
 
+        // Charge l'état du tournoi depuis localStorage
         function loadState() {
-            try {
-                const raw = localStorage.getItem(LOCAL_KEY);
-                if (!raw) return;
-                const parsed = JSON.parse(raw);
-                teams = parsed.teams || [];
-                rounds = parsed.rounds || null;
-            } catch (e) {
-                console.warn('Erreur load state', e);
+            const savedState = localStorage.getItem(LOCAL_KEY);
+            if (savedState) {
+                const state = JSON.parse(savedState);
+                teams = state.teams || [];
+                rounds = state.rounds || null;
+                // Remplir la zone de texte pour affichage
+                teamInput.value = teams.map(t => t.name).join(', ');
             }
         }
 
+        // Met à jour l'affichage de la liste des équipes
         function updateTeamsUI() {
-            teamsListEl.innerHTML = '';
-            teams.forEach((t, i) => {
-                const card = document.createElement('div');
-                card.className = "flex justify-between items-center bg-slate-700 p-3 rounded-lg";
-                const name = document.createElement('div');
-                name.textContent = t.name;
-                name.className = "font-medium";
-                const right = document.createElement('div');
-                right.className = "flex items-center gap-2";
-                const upBtn = document.createElement('button');
-                upBtn.innerHTML = '⬆️'; upBtn.title = 'Monter';
-                upBtn.className = 'p-1 rounded-md hover:bg-slate-600';
-                upBtn.onclick = () => { if (i>0) { [teams[i-1], teams[i]] = [teams[i], teams[i-1]]; updateTeamsUI(); saveState(); } };
-                const downBtn = document.createElement('button');
-                downBtn.innerHTML = '⬇️'; downBtn.title = 'Descendre';
-                downBtn.className = 'p-1 rounded-md hover:bg-slate-600';
-                downBtn.onclick = () => { if (i<teams.length-1) { [teams[i+1], teams[i]] = [teams[i], teams[i+1]]; updateTeamsUI(); saveState(); } };
-                const delBtn = document.createElement('button');
-                delBtn.innerHTML = '❌'; delBtn.title = 'Supprimer';
-                delBtn.className = 'p-1 rounded-md hover:bg-red-600';
-                delBtn.onclick = () => { teams.splice(i,1); renderTeamsCount(); updateTeamsUI(); saveState(); };
-
-                right.appendChild(upBtn);
-                right.appendChild(downBtn);
-                right.appendChild(delBtn);
-                card.appendChild(name);
-                card.appendChild(right);
-                teamsListEl.appendChild(card);
+            teamList.innerHTML = '';
+            teamCountSpan.textContent = teams.length;
+            teams.forEach(team => {
+                const badge = document.createElement('span');
+                badge.className = 'bg-pink-500 text-white px-3 py-1 rounded-full text-xs font-semibold';
+                badge.textContent = team.name;
+                teamList.appendChild(badge);
             });
-            renderTeamsCount();
+
+            // Active le bouton 'Générer' si au moins 2 équipes sont présentes
+            const isReadyToGenerate = teams.length >= 2;
+            generateBtn.disabled = !isReadyToGenerate;
+            generateBtn.classList.toggle('opacity-50', !isReadyToGenerate);
+            
+            // Suppression de l'ancienne logique d'avertissement de puissance de 2
+            const existingWarning = teamListContainer.querySelector('.text-red-400');
+            if (existingWarning) existingWarning.remove();
         }
 
-        function renderTeamsCount(){
-            teamsCountEl.textContent = teams.length + (teams.length <= 1 ? ' équipe' : ' équipes');
-        }
-
-        function shuffleArray(a) {
-            // Fisher-Yates
-            for (let i=a.length-1;i>0;i--){
-                const j = Math.floor(Math.random()*(i+1));
-                [a[i],a[j]] = [a[j],a[i]];
-            }
-            return a;
-        }
-
-        function nextPowerOfTwo(n){
-            let p = 1;
-            while (p < n) p <<= 1;
-            return p;
-        }
-
-        // --- Bracket generation ---
+        // Mélange les équipes et crée le premier tour (gestion des byes)
         function generateBracket() {
             if (teams.length < 2) {
-                showAlert('Il faut au moins 2 équipes pour générer un tournoi.');
+                console.error("Minimum 2 équipes requises pour générer l'arbre.");
                 return;
             }
 
-            // shuffle teams and fill with byes (null)
-            const base = teams.map(t => ({ name: t.name }));
-            shuffleArray(base);
-            const p2 = nextPowerOfTwo(base.length);
-            const byes = p2 - base.length;
-            for (let i=0;i<byes;i++) base.push(null);
+            // 1. Déterminer la prochaine puissance de 2
+            let numTeams = teams.length;
+            let nextPowerOfTwo = 2;
+            while (nextPowerOfTwo < numTeams) {
+                nextPowerOfTwo *= 2;
+            }
 
-            // initial round: pair sequentially
-            const initialMatches = [];
-            for (let i=0;i<base.length;i+=2){
-                initialMatches.push({
-                    teamA: base[i],    // {name} or null
-                    teamB: base[i+1],  // {name} or null
-                    scoreA: null,
-                    scoreB: null,
-                    winner: null,
-                    decided: false
+            // 2. Créer la liste des participants incluant les "byes" (null)
+            const shuffledTeams = [...teams].sort(() => 0.5 - Math.random());
+            const totalMatches = nextPowerOfTwo / 2;
+            
+            // Ajouter des 'null' (bye) si nécessaire pour arriver à nextPowerOfTwo participants
+            let participants = [...shuffledTeams];
+            for (let i = 0; i < nextPowerOfTwo - numTeams; i++) {
+                participants.push(null); 
+            }
+            
+            // Re-mélanger avec les byes pour distribuer équitablement
+            // Cependant, la méthode d'insertion des byes doit être stratégique, pour l'instant on se contente de les mettre à la fin.
+            
+            // 3. Créer le premier tour
+            let currentRound = [];
+            for (let i = 0; i < participants.length; i += 2) {
+                const team1 = participants[i];
+                const team2 = participants[i + 1];
+
+                const match = {
+                    id: Math.random().toString(36).substring(2, 9),
+                    team1: team1 ? team1 : { name: 'BYE' }, // Utiliser BYE pour les nulls pour le rendu
+                    team2: team2 ? team2 : { name: 'BYE' },
+                    winner: null
+                };
+
+                // Si c'est un BYE contre une équipe réelle, l'équipe réelle gagne automatiquement
+                if (team1 && team1.name !== 'BYE' && (!team2 || team2.name === 'BYE')) { // team1 vs BYE
+                    match.winner = team1;
+                } else if (team2 && team2.name !== 'BYE' && (!team1 || team1.name === 'BYE')) { // BYE vs team2
+                    match.winner = team2;
+                } else if ((!team1 || team1.name === 'BYE') && (!team2 || team2.name === 'BYE')) { 
+                    // Double BYE (ne devrait pas arriver avec notre logique)
+                    match.winner = { name: 'À déterminer' }; 
+                }
+                
+                currentRound.push(match);
+            }
+            
+            // 4. Propager les gagnants des byes (si le gagnant est déjà défini)
+            rounds = [currentRound];
+            
+            let numRounds = Math.log2(nextPowerOfTwo);
+            
+            // Créer les tours suivants vides
+            for (let i = 1; i < numRounds; i++) {
+                let nextRound = [];
+                const prevRound = rounds[i - 1];
+                for (let j = 0; j < prevRound.length / 2; j++) {
+                    const matchIndex1 = j * 2;
+                    const matchIndex2 = j * 2 + 1;
+
+                    // Les équipes sont initialisées au gagnant du match précédent
+                    const team1 = prevRound[matchIndex1].winner;
+                    const team2 = prevRound[matchIndex2].winner;
+                    
+                    nextRound.push({
+                         id: Math.random().toString(36).substring(2, 9),
+                         team1: team1, 
+                         team2: team2, 
+                         winner: null
+                    });
+                }
+                rounds.push(nextRound);
+            }
+            
+            // 5. Mise à jour de tous les tours (important pour les byes)
+            // On s'assure que les byes sont propagés correctement
+            for(let i = 0; i < rounds.length; i++) {
+                rounds[i].forEach((match, j) => {
+                    // Si le match a un gagnant fixe (comme un BYE) ou déjà sélectionné, on propage
+                    if (match.winner) {
+                        updateNextRounds(i, j);
+                    }
                 });
             }
 
-            // compute number of rounds
-            const roundsArr = [initialMatches];
-            let matchesThisRound = initialMatches.length;
-            while (matchesThisRound > 1) {
-                matchesThisRound = Math.ceil(matchesThisRound / 2);
-                const matches = Array.from({length: matchesThisRound}, () => ({
-                    teamA: null, teamB: null, scoreA:null, scoreB:null, winner:null, decided:false
-                }));
-                roundsArr.push(matches);
+
+            saveState();
+            bracketArea.classList.remove('hidden');
+            renderBracket();
+        }
+        
+        // Met à jour le gagnant d'un match
+        function setWinner(roundIndex, matchIndex, team) {
+            // Un BYE ne peut pas être sélectionné comme gagnant (ni désélectionné)
+            if (team && team.name === 'BYE') return;
+
+            // Récupérer le match en cours
+            const match = rounds[roundIndex][matchIndex];
+            
+            // Vérifier si le clic est sur un match dont le gagnant est fixé (match BYE)
+            const isByeMatch = (match.team1 && match.team1.name === 'BYE') || (match.team2 && match.team2.name === 'BYE');
+            if (isByeMatch) {
+                // Si c'est un match avec BYE, le gagnant est fixé (l'équipe non-BYE). Ne pas permettre le changement.
+                return;
+            }
+            
+            // Logique de sélection/désélection normale
+            if (match.winner && match.winner.name === team.name) {
+                // Si on clique sur le gagnant, le désélectionner
+                match.winner = null;
+            } else {
+                match.winner = team;
             }
 
-            rounds = roundsArr;
-            // auto-advance matches that have BYE
-            autoAdvanceByes();
+            // Mettre à jour les tours suivants
+            updateNextRounds(roundIndex, matchIndex);
+
             saveState();
             renderBracket();
-            bracketArea.classList.remove('hidden');
         }
 
-        // auto-advance matches where one side is null
-        function autoAdvanceByes() {
-            if (!rounds) return;
-            for (let r=0; r<rounds.length; r++){
-                const round = rounds[r];
-                for (let m=0; m<round.length; m++){
-                    const match = round[m];
-                    if (match.decided) continue;
-                    if (match.teamA && !match.teamB) {
-                        match.winner = match.teamA;
-                        match.decided = true;
-                        propagateWinner(r, m, match.winner);
-                    } else if (!match.teamA && match.teamB) {
-                        match.winner = match.teamB;
-                        match.decided = true;
-                        propagateWinner(r, m, match.winner);
-                    } else if (!match.teamA && !match.teamB) {
-                        // nothing
+        // Propage le gagnant au tour suivant
+        function updateNextRounds(roundIndex, matchIndex) {
+            const winner = rounds[roundIndex][matchIndex].winner;
+            const nextRoundIndex = roundIndex + 1;
+            
+            if (nextRoundIndex < rounds.length) {
+                const nextMatchIndex = Math.floor(matchIndex / 2);
+                const isFirstTeam = matchIndex % 2 === 0;
+                
+                // Mettre à jour l'équipe dans le match suivant
+                if (isFirstTeam) {
+                    rounds[nextRoundIndex][nextMatchIndex].team1 = winner;
+                } else {
+                    rounds[nextRoundIndex][nextMatchIndex].team2 = winner;
+                }
+                
+                // Si le gagnant est retiré, le match suivant est réinitialisé et la propagation continue (récursivité)
+                if (winner === null) {
+                    rounds[nextRoundIndex][nextMatchIndex].winner = null;
+                    updateNextRounds(nextRoundIndex, nextMatchIndex);
+                } else {
+                    // Si le nouveau match du tour suivant est devenu un BYE (ex: Team vs null/À déterminer)
+                    const nextMatch = rounds[nextRoundIndex][nextMatchIndex];
+                    const t1Known = nextMatch.team1 && nextMatch.team1.name !== 'À déterminer' && nextMatch.team1.name !== 'BYE';
+                    const t2Known = nextMatch.team2 && nextMatch.team2.name !== 'À déterminer' && nextMatch.team2.name !== 'BYE';
+
+                    if (t1Known && (!nextMatch.team2 || nextMatch.team2.name === 'À déterminer' || nextMatch.team2.name === 'BYE')) {
+                        // Match de type BYE dans les tours intermédiaires (après que l'équipe 2 ait été retirée)
+                        nextMatch.winner = nextMatch.team1;
+                        updateNextRounds(nextRoundIndex, nextMatchIndex);
+                    } else if (t2Known && (!nextMatch.team1 || nextMatch.team1.name === 'À déterminer' || nextMatch.team1.name === 'BYE')) {
+                         // Match de type BYE dans les tours intermédiaires (après que l'équipe 1 ait été retirée)
+                        nextMatch.winner = nextMatch.team2;
+                        updateNextRounds(nextRoundIndex, nextMatchIndex);
+                    } else if (nextMatch.winner !== null) {
+                        // Si les deux équipes sont à nouveau connues, on retire le gagnant pour que l'utilisateur puisse choisir à nouveau
+                        nextMatch.winner = null;
+                        updateNextRounds(nextRoundIndex, nextMatchIndex);
                     }
                 }
             }
         }
 
-        // propagate winner to next round slot
-        function propagateWinner(roundIndex, matchIndex, winnerTeam) {
-            if (!rounds) return;
-            const nextRoundIndex = roundIndex + 1;
-            if (nextRoundIndex >= rounds.length) {
-                // final winner
-                saveState();
-                renderBracket();
-                return;
-            }
-            const nextMatchIndex = Math.floor(matchIndex / 2);
-            const slot = (matchIndex % 2 === 0) ? 'teamA' : 'teamB';
-            rounds[nextRoundIndex][nextMatchIndex][slot] = { ...winnerTeam }; // copy
-            saveState();
-            // If the next match now has a bye on the other side, auto-advance
-            const nextMatch = rounds[nextRoundIndex][nextMatchIndex];
-            if ((nextMatch.teamA && !nextMatch.teamB) || (!nextMatch.teamA && nextMatch.teamB)) {
-                if (!nextMatch.decided) {
-                    nextMatch.winner = nextMatch.teamA || nextMatch.teamB;
-                    nextMatch.decided = true;
-                    propagateWinner(nextRoundIndex, nextMatchIndex, nextMatch.winner);
-                }
-            }
-        }
 
-        // --- UI: render bracket ---
-        function renderBracket() {
-            roundsContainer.innerHTML = ''; // clear
-            if (!rounds) {
-                bracketArea.classList.add('hidden');
-                return;
+        // --- Fonctions de Rendu (UI) ---
+
+        // Crée l'élément DOM pour un match
+        function createMatchElement(match, roundIndex, matchIndex) {
+            const matchDiv = document.createElement('div');
+            // La classe match-win sert à styler la ligne de connexion
+            const isWinnerSelected = match.winner && match.winner.name !== 'À déterminer';
+            matchDiv.className = `bracket-match relative mb-8 w-36 md:w-48 ${isWinnerSelected ? 'match-win' : ''}`;
+
+            const team1 = match.team1;
+            const team2 = match.team2;
+
+            if (team1) {
+                matchDiv.appendChild(createTeamElement(team1, match.winner, 1, roundIndex, matchIndex));
+            } else {
+                matchDiv.appendChild(createPlaceholderTeam(1)); 
+            }
+
+            if (team2) {
+                matchDiv.appendChild(createTeamElement(team2, match.winner, 2, roundIndex, matchIndex));
+            } else {
+                matchDiv.appendChild(createPlaceholderTeam(2));
             }
             
-            // Show champion if final decided
-            const finalRound = rounds[rounds.length - 1];
-            const finalMatch = finalRound[0];
-            if (finalMatch && finalMatch.decided && finalMatch.winner) {
-                championBadge.classList.remove('hidden');
-                championNameEl.textContent = finalMatch.winner.name;
+            return matchDiv;
+        }
+
+        // Crée l'élément DOM pour une équipe
+        function createTeamElement(team, winner, teamNumber, roundIndex, matchIndex) {
+            const teamDiv = document.createElement('div');
+            const isWinner = winner && winner.name === team.name;
+            const isBye = team.name === 'BYE';
+            const isFuture = team.name === 'À déterminer';
+            
+            // Un match BYE est un match où l'un des participants est 'BYE'. Son gagnant est fixé.
+            const match = rounds[roundIndex][matchIndex];
+            const isFixedByeMatch = (match.team1 && match.team1.name === 'BYE') || (match.team2 && match.team2.name === 'BYE');
+            
+            let baseClasses = 'p-2 my-0.5 rounded-lg text-sm truncate transition duration-150 ease-in-out select-none';
+            
+            if (isBye || isFuture) {
+                // Style pour le BYE ou l'équipe Future
+                teamDiv.className = `${baseClasses} bg-slate-800 text-slate-500 italic border border-slate-700 pointer-events-none`;
+                teamDiv.textContent = isBye ? 'BYE' : 'À déterminer';
+            } else if (isFixedByeMatch) {
+                // L'équipe qui gagne par BYE est affichée comme gagnante mais n'est pas cliquable
+                teamDiv.className = `${baseClasses} bg-pink-600 font-bold shadow-lg text-slate-100 border border-pink-500 pointer-events-none`;
+                teamDiv.textContent = team.name;
+            } else if (isWinner) {
+                // Style pour le Vainqueur sélectionné par l'utilisateur
+                teamDiv.className = `${baseClasses} bg-pink-600 font-bold shadow-lg transform scale-105 cursor-pointer text-slate-100 border border-pink-500 hover:bg-pink-700`;
+                teamDiv.textContent = team.name;
+                teamDiv.addEventListener('click', () => {
+                     setWinner(roundIndex, matchIndex, team);
+                 });
             } else {
-                championBadge.classList.add('hidden');
+                // Style par défaut (équipe en attente)
+                teamDiv.className = `${baseClasses} bg-slate-700 hover:bg-slate-600 border border-slate-600 cursor-pointer text-slate-100`;
+                teamDiv.textContent = team.name;
+                teamDiv.addEventListener('click', () => {
+                     setWinner(roundIndex, matchIndex, team);
+                 });
             }
 
-            rounds.forEach((round, roundIdx) => {
-                const roundDiv = document.createElement('div');
-                roundDiv.className = `round-column ${roundIdx > 0 ? 'ml-12' : ''}`;
-                const title = document.createElement('div');
-                title.className = 'text-center font-bold text-xl mb-4';
-                title.textContent = (roundIdx === rounds.length - 1) ? 'Final' : `Round ${roundIdx + 1}`;
-                roundDiv.appendChild(title);
+            return teamDiv;
+        }
 
-                round.forEach((match, matchIdx) => {
-                    const matchCard = document.createElement('div');
-                    matchCard.className = 'bracket-node p-4 rounded-lg shadow-md';
-                    
-                    const teamsDiv = document.createElement('div');
-                    teamsDiv.className = 'space-y-2';
+        // Crée l'élément DOM pour une équipe dont le nom n'est pas encore connu
+        function createPlaceholderTeam(teamNumber) {
+            const teamDiv = document.createElement('div');
+            teamDiv.className = 'p-2 my-0.5 rounded-lg text-sm italic text-slate-500 bg-slate-800 border border-slate-700 pointer-events-none select-none';
+            teamDiv.textContent = `Gagnant Match Précédent`; 
+            return teamDiv;
+        }
 
-                    const teamRow = (side, teamObj, isWinner) => {
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'flex items-center justify-between';
-                        
-                        const nameEl = document.createElement('div');
-                        nameEl.className = 'text-sm font-medium';
-                        nameEl.textContent = teamObj ? teamObj.name : (teamObj === null ? 'Bye' : '—');
-                        nameEl.classList.add('text-gray-100');
-                        if (isWinner) {
-                            nameEl.classList.add('text-yellow-300', 'font-extrabold');
-                        }
+        // Crée l'élément DOM pour un tour complet
+        function createRoundElement(round, roundIndex) {
+            const roundDiv = document.createElement('div');
+            // Ajustement de la hauteur du conteneur en fonction du nombre de matchs
+            const matchCount = round.length;
+            const roundHeightClass = matchCount > 1 ? 'justify-around' : 'justify-center'; 
 
-                        const scoreContainer = document.createElement('div');
-                        scoreContainer.className = 'flex items-center gap-2';
+            roundDiv.className = `bracket-round flex flex-col ${roundHeightClass} h-full`; 
+            
+            // Ajout d'un padding top important pour la finale
+            if (roundIndex === rounds.length - 1) {
+                roundDiv.classList.add('pt-16');
+            }
 
-                        const scoreInput = document.createElement('input');
-                        scoreInput.type = 'number';
-                        scoreInput.min = 0;
-                        scoreInput.placeholder = '-';
-                        scoreInput.value = (side === 'A' ? (match.scoreA !== null ? match.scoreA : '') : (match.scoreB !== null ? match.scoreB : ''));
-                        scoreInput.className = 'w-14 p-1 text-center rounded-md bg-slate-700';
-                        
-                        // Modifier l'écouteur d'événement pour appeler la fonction de soumission
-                        scoreInput.onkeydown = (e) => {
-                            if (e.key === 'Enter') {
-                                const valA = document.getElementById(`score-A-${roundIdx}-${matchIdx}`).value;
-                                const valB = document.getElementById(`score-B-${roundIdx}-${matchIdx}`).value;
-                                if (valA !== '' && valB !== '') {
-                                    submitScore(roundIdx, matchIdx);
-                                } else {
-                                    showAlert('Saisis les deux scores.');
-                                }
-                            }
-                        };
-                        
-                        // Ajouter des IDs pour pouvoir récupérer les valeurs
-                        scoreInput.id = `score-${side}-${roundIdx}-${matchIdx}`;
-
-                        wrapper.appendChild(nameEl);
-                        wrapper.appendChild(scoreContainer);
-                        scoreContainer.appendChild(scoreInput);
-                        return { wrapper, scoreInput };
-                    };
-
-                    const rowA = teamRow('A', match.teamA, match.decided && match.winner && match.winner.name === (match.teamA && match.teamA.name));
-                    const rowB = teamRow('B', match.teamB, match.decided && match.winner && match.winner.name === (match.teamB && match.teamB.name));
-
-                    teamsDiv.appendChild(rowA.wrapper);
-                    teamsDiv.appendChild(rowB.wrapper);
-
-                    // Actions
-                    const actions = document.createElement('div');
-                    actions.className = 'flex items-center justify-between mt-3 gap-2';
-
-                    const submitBtn = document.createElement('button');
-                    submitBtn.className = 'bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg font-bold';
-                    submitBtn.textContent = 'Valider';
-                    submitBtn.onclick = () => {
-                        const valA = rowA.scoreInput.value;
-                        const valB = rowB.scoreInput.value;
-                        match.scoreA = valA !== '' ? parseInt(valA, 10) : null;
-                        match.scoreB = valB !== '' ? parseInt(valB, 10) : null;
-                        submitScore(roundIdx, matchIdx);
-                    };
-
-                    const clearBtn = document.createElement('button');
-                    clearBtn.className = 'bg-gray-600 hover:bg-gray-700 px-3 py-2 rounded-lg';
-                    clearBtn.textContent = 'Effacer';
-                    clearBtn.onclick = () => {
-                        showConfirm('Effacer ce résultat ? Les matchs suivants seront réinitialisés.', () => {
-                            match.scoreA = null;
-                            match.scoreB = null;
-                            match.winner = null;
-                            match.decided = false;
-                            clearDownstream(roundIdx, matchIdx);
-                            saveState();
-                            renderBracket();
-                        });
-                    };
-
-                    actions.appendChild(submitBtn);
-                    actions.appendChild(clearBtn);
-
-                    matchCard.appendChild(teamsDiv);
-                    matchCard.appendChild(actions);
-
-                    roundDiv.appendChild(matchCard);
-                });
-
-                roundsContainer.appendChild(roundDiv);
+            round.forEach((match, matchIndex) => {
+                roundDiv.appendChild(createMatchElement(match, roundIndex, matchIndex));
             });
 
-            saveState();
+            return roundDiv;
         }
 
-
-        // clear downstream winners that depend on a match (called when erasing a match result)
-        function clearDownstream(roundIndex, matchIndex) {
-            if (!rounds) return;
+        // Fonction principale de rendu de l'arbre
+        function renderBracket() {
+            bracketContainer.innerHTML = '';
+            championBadge.classList.add('hidden');
+            championNameSpan.textContent = '';
             
-            // simpler approach: rebuild all next-round slots from scratch using decided winners up to each round
-            // First, clear all teams except initial round
-            for (let r=roundIndex+1;r<rounds.length;r++){
-                rounds[r].forEach(m=>{
-                    m.teamA = null; m.teamB = null; m.scoreA = null; m.scoreB = null; m.winner = null; m.decided = false;
-                });
-            }
-            // propagate winners from round 0 forward
-            for (let r=0;r<rounds.length;r++){
-                for (let mIdx=0;mIdx<rounds[r].length;mIdx++){
-                    const m = rounds[r][mIdx];
-                    if (m.decided && m.winner) {
-                        const nextR = r+1;
-                        if (nextR < rounds.length) {
-                            const nextMatchIdx = Math.floor(mIdx/2);
-                            const slot = (mIdx % 2 === 0) ? 'teamA' : 'teamB';
-                            rounds[nextR][nextMatchIdx][slot] = { ...m.winner };
-                            // if next match had a bye, may become auto-decided (handled later)
-                        }
-                    } else {
-                        if (m.teamA && !m.decided && !m.teamB) {
-                            // handled in autoAdvanceByes after loop
-                        }
-                    }
-                }
-            }
-            autoAdvanceByes();
-            saveState();
-        }
+            if (!rounds || rounds.length === 0) return;
 
-        // submit score for a match
-        function submitScore(roundIdx, matchIdx) {
-            const match = rounds[roundIdx][matchIdx];
-            if (!match) return;
-            // require both scores present (unless one team is null -> bye already auto-advanced)
-            if (match.teamA && match.teamB) {
-                if (match.scoreA === null || match.scoreB === null) {
-                    showAlert('Saisis les deux scores.');
-                    return;
-                }
-                if (match.scoreA === match.scoreB) {
-                    showAlert('Match nul non autorisé. Ajuste les scores (ex: PB).');
-                    return;
-                }
-                match.decided = true;
-                match.winner = (match.scoreA > match.scoreB) ? match.teamA : match.teamB;
-                propagateWinner(roundIdx, matchIdx, match.winner);
-                saveState();
-                renderBracket();
-            } else {
-                showAlert('Match invalide (bye).');
+            // Rendu de tous les tours
+            rounds.forEach((round, roundIndex) => {
+                bracketContainer.appendChild(createRoundElement(round, roundIndex));
+            });
+            
+            // Vérification et affichage du Champion
+            const finalRound = rounds[rounds.length - 1];
+            if (finalRound && finalRound.length > 0 && finalRound[0].winner) {
+                const champion = finalRound[0].winner;
+                 if (champion && champion.name !== 'À déterminer' && champion.name !== 'BYE') {
+                    championNameSpan.textContent = champion.name;
+                    championBadge.classList.remove('hidden');
+                 }
             }
         }
 
-        // --- Events ---
-        addTeamBtn.addEventListener('click', () => {
-            const name = teamInput.value.trim();
-            if (!name) return;
-            if (teams.find(t=>t.name.toLowerCase() === name.toLowerCase())) {
-                showAlert('Cette équipe existe déjà.');
-                return;
+
+        // --- Gestion des Événements ---
+
+        confirmCancel.addEventListener('click', hideConfirm);
+        confirmAccept.addEventListener('click', () => {
+            if (confirmCallback) {
+                confirmCallback();
             }
-            teams.push({ name });
-            teamInput.value = '';
-            updateTeamsUI();
-            saveState();
+            hideConfirm();
         });
 
-        teamInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') addTeamBtn.click();
-        });
 
-        randomFillBtn.addEventListener('click', () => {
-            const samples = ['Les Têtes', 'Les Rebonds', 'Les Pintes', 'Bière & Co', 'Shot Masters', 'Les Noms', 'Team Rouge', 'Team Bleu', 'Les Frappés', 'Les Éclopés'];
-            const toAdd = [];
-            for (let i=0;i<4;i++){
-                const s = samples[Math.floor(Math.random()*samples.length)] + ' ' + Math.floor(Math.random()*99);
-                if (!teams.find(t=>t.name===s)) toAdd.push(s);
-            }
-            toAdd.forEach(n => teams.push({ name: n }));
+        addTeamsBtn.addEventListener('click', () => {
+            const rawText = teamInput.value.trim();
+            if (!rawText) return;
+
+            // Nettoyer et séparer les noms (par virgule ou saut de ligne)
+            const teamNames = rawText.split(/[\n,]+/)
+                                     .map(name => name.trim())
+                                     .filter(name => name.length > 0);
+
+            // Mettre à jour la liste des équipes
+            teams = teamNames.map(name => ({ name }));
+            
             updateTeamsUI();
             saveState();
         });
 
         generateBtn.addEventListener('click', () => {
-            generateBracket();
+             // La vérification est maintenant effectuée dans generateBracket et est moins restrictive
+             if (teams.length >= 2) {
+                 generateBracket();
+             } else {
+                 showConfirm("Veuillez ajouter au moins deux équipes pour générer l'arbre.", () => {});
+             }
         });
 
         resetBtn.addEventListener('click', () => {
@@ -624,6 +602,7 @@
                 renderBracket();
                 bracketArea.classList.add('hidden');
                 championBadge.classList.add('hidden');
+                teamInput.value = ''; // Vider le champ
             });
         });
 
@@ -638,12 +617,12 @@
             URL.revokeObjectURL(url);
         });
 
-        // --- Init ---
+        // --- Init --
         window.addEventListener('load', () => {
             loadState();
             updateTeamsUI();
             if (rounds) {
-                bracketArea.classList.remove('hidden');
+                bracketArea.classList.remove('hidden'); 
                 renderBracket();
             }
         });

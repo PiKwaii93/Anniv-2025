@@ -11,148 +11,361 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a202c; /* Couleur de fond foncée pour un look de soirée */
+            background-color: #0f172a; /* Bleu nuit pour l'ambiance soirée */
         }
+        /* La grille reste 4x4, mais on assure une taille minimale des cellules pour le toucher */
         .bingo-grid {
+            /* S'assurer que la grille utilise le modèle grid */
+            display: grid; 
             grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 0.5rem; 
+        }
+
+        /* Style de base pour une cellule */
+        .grid-cell {
+            /* La hauteur est dictée par le contenu (texte) le plus long de la ligne Grid */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0.75rem 0.5rem; /* Padding vertical et horizontal pour l'espace */
+            min-height: 4rem; /* Assure une hauteur minimale pour le toucher sur mobile */
+            
+            line-height: 1.3; /* Ligne plus haute pour la lisibilité du texte long */
+            word-break: break-word; /* Force les mots trop longs à se couper pour éviter le débordement horizontal */
+            
+            border-radius: 0.75rem; /* rounded-xl */
+            transition: all 0.2s ease-in-out;
+            user-select: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            white-space: normal; /* S'assure que le texte passe à la ligne */
+
+            /* Le JS va définir la taille de police dynamiquement ici */
+        }
+        
+        /* Au-delà de sm (tablet/desktop), on peut augmenter le padding et la hauteur minimale */
+        @media (min-width: 640px) {
+            .grid-cell {
+                padding: 1rem;
+                min-height: 6rem;
+            }
+        }
+
+        /* Effet visuel au clic */
+        .grid-cell:active {
+            transform: scale(0.95);
+        }
+
+        /* Case non validée */
+        .not-validated {
+            background-color: #374151; /* gray-700 */
+            color: #d1d5db; /* gray-300 */
+            border: 2px solid #4b5563; /* gray-600 */
+        }
+
+        /* Case validée (Bingo) */
+        .validated {
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            font-weight: bold;
+            border: 2px solid #dc2626; /* red-600 */
+            transform: scale(1.05); /* Effet d'accentuation */
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
-    <div class="container mx-auto max-w-4xl p-6 bg-gray-800 rounded-2xl shadow-xl flex flex-col items-center space-y-8">
-        <div class="text-center">
-            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white mb-2">Bingo de Soirée</h1>
-            <p class="text-gray-400 text-lg">Validez toutes les cases pour gagner !</p>
+<body class="text-white flex items-center justify-center min-h-screen p-2 md:p-4">
+    
+    <!-- Conteneur principal: max-w-full sur mobile et utilisation de 'mx-auto' pour centrer -->
+    <div class="w-full max-w-4xl p-4 md:p-6 bg-slate-800 rounded-2xl shadow-2xl flex flex-col items-center space-y-4 md:space-y-6 border border-slate-700 min-h-[95vh] mx-auto">
+        
+        <div class="text-center w-full">
+            <h1 class="text-3xl md:text-5xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-red-500">
+                🎉 Bingo de Soirée
+            </h1>
+            <p class="mt-2 text-sm md:text-lg text-slate-400 font-medium">
+                Validez toutes les 16 cases pour gagner le Bingo Complet !
+            </p>
         </div>
 
-        <!-- Zone du message de victoire -->
-        <div id="message-container" class="w-full text-center">
-            <div id="win-message" class="hidden bg-green-500 text-white text-2xl font-bold p-4 rounded-lg shadow-lg">
-                Félicitations ! Vous avez complété votre grille ! 🎉
-            </div>
+        <!-- Section Statut de Victoire -->
+        <div id="winStatus" class="w-full text-center p-3 rounded-xl bg-green-900/50 border border-green-700 hidden">
+            <p class="text-xl md:text-2xl font-bold text-green-300">
+                🥳 BINGO COMPLET ! Vous avez gagné !
+            </p>
         </div>
 
-        <!-- La grille de bingo -->
-        <div id="bingo-grid" class="bingo-grid w-full aspect-square gap-4 grid">
+        <!-- Grille de Bingo -->
+        <div id="bingoGrid" class="bingo-grid w-full flex-grow">
             <!-- Les cases seront générées ici par JavaScript -->
         </div>
 
-        <!-- Bouton pour une nouvelle grille -->
-        <button id="new-grid-btn" class="bg-blue-600 hover:bg-blue-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-            Nouvelle Grille
-        </button>
-
-        <!-- Bouton de retour à l'accueil des jeux -->
-        <a href="index.html" class="mt-6 px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50 inline-flex items-center justify-center">
-            <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
-        </a>
+        <!-- Boutons d'action -->
+        <div class="flex flex-col md:flex-row gap-4 w-full md:w-auto mt-auto">
+            <button id="newGridBtn" 
+                    class="w-full md:w-auto bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-150 transform hover:scale-105">
+                Nouvelle Grille
+            </button>
+            <a href="index.html" 
+               class="w-full md:w-auto bg-slate-600 hover:bg-slate-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transition duration-150 text-center flex items-center justify-center transform hover:scale-105">
+                <span class="mr-2">🏠</span> Accueil
+            </a>
+        </div>
     </div>
 
     <script>
+        // Constantes pour le jeu
+        const GRID_SIZE = 4; // 4x4
+        const TOTAL_SQUARES = GRID_SIZE * GRID_SIZE;
+        const LOCAL_KEY = 'partyBingoGrid';
+        
+        // Taille maximale de la police pour éviter un texte trop gros pour les courtes entrées
+        const MAX_FONT_SIZE_PX = window.innerWidth < 640 ? 16 : 24; 
+        // Taille minimale de la police pour la lisibilité
+        const MIN_FONT_SIZE_PX = window.innerWidth < 640 ? 10 : 12; 
+
+        // Actions de Bingo (à personnaliser selon votre soirée !)
         const bingoActions = [
-            "Boire un verre d'eau",
-            "Faire un selfie de groupe",
-            "Dire 'Bingo !' très fort",
-            "Envoyer un message à un ami",
-            "Faire un câlin à quelqu'un",
-            "Mimer un animal",
-            "Chanter une chanson",
-            "Faire un vœu",
-            "Raconter une blague",
-            "Faire un tour sur une jambe",
-            "Dire un compliment à quelqu'un",
-            "Manger un biscuit",
-            "Demander un conseil à quelqu'un",
-            "Danser sur une musique qui ne joue pas",
-            "Parler avec un accent étranger",
-            "Faire une high-five à cinq personnes",
-            "Inventer un nouveau pas de danse",
-            "Taper dans ses mains",
-            "Faire le tour de la pièce",
-            "Faire semblant de jouer de la guitare",
-            "Trouver quelque chose de vert",
-            "Faire semblant de dormir",
-            "Rire sans raison",
-            "Dire 'Bonjour' à un inconnu",
-            "Faire le bruit d'un oiseau",
-            "Dire un mot de 10 lettres ou plus",
-            "Trouver un objet rond",
-            "Demander l'heure",
-            "Faire une grimace",
-            "Dire 'Je suis une star'"
+            "Quelqu'un raconte une anecdote embarrassante.",
+            "Un invité se plaint de la musique.",
+            "Quelqu'un utilise le mot 'littéralement'.",
+            "Un smartphone est cassé ou tombe dans l'eau.",
+            "On voit un 'danseur' embarrassant.",
+            "Un invité mentionne son travail plus de trois fois.",
+            "On commande de la nourriture à emporter.",
+            "Le chien ou le chat devient le centre de l'attention.",
+            "Un débat politique/religieux éclate.",
+            "Quelqu'un propose un shot de tequila.",
+            "On entend une chanson de Céline Dion (ou similaire).",
+            "Un couple se dispute.",
+            "Quelqu'un fait un 'cheers' trop long.",
+            "Un invité est déjà parti avant minuit.",
+            "Quelqu'un apporte un plat bizarre/non demandé.",
+            "Un invité pose une question de quiz sans connaître la réponse.",
+            "Quelqu'un oublie le prénom d'un autre invité.",
+            "Une personne parle d'une série que personne d'autre n'a vue.",
+            "Un invité dit 'J'étais pas si saoul que ça...' en parlant du passé.",
+            "Quelqu'un fait une imitation ratée.",
+            "La lumière est tamisée pour l'ambiance.",
+            "Un invité se prend pour le DJ.",
+            "On entend un rire de méchant de dessin animé.",
+            "Quelqu'un parle de sport intensément.",
+            "Un invité propose de faire un jeu de société.",
+            "Quelqu'un utilise une expression très vieille/démodée.",
         ];
 
-        const bingoActions2 = [
-            
-        ]
+        // Références DOM
+        const bingoGrid = document.getElementById('bingoGrid');
+        const newGridBtn = document.getElementById('newGridBtn');
+        const winStatus = document.getElementById('winStatus');
 
-        const bingoGrid = document.getElementById('bingo-grid');
-        const newGridBtn = document.getElementById('new-grid-btn');
-        const winMessage = document.getElementById('win-message');
-        const GRID_SIZE = 4;
-        const LOCAL_STORAGE_KEY = 'bingo_grid_state';
-        const TOTAL_SQUARES = GRID_SIZE * GRID_SIZE;
+
+        // --- Fonctions d'Utilité ---
 
         function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex !== 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
             }
             return array;
         }
 
         function saveGridState(state) {
             try {
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
-            } catch (e) {
-                console.error("Erreur lors de la sauvegarde dans le localStorage", e);
+                localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
+            } catch (error) {
+                console.error("Erreur lors de la sauvegarde de l'état :", error);
             }
         }
 
         function loadGridState() {
             try {
-                const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-                return storedState ? JSON.parse(storedState) : null;
-            } catch (e) {
-                console.error("Erreur lors du chargement depuis le localStorage", e);
+                const stored = localStorage.getItem(LOCAL_KEY);
+                return stored ? JSON.parse(stored) : null;
+            } catch (error) {
+                console.error("Erreur lors du chargement de l'état :", error);
                 return null;
             }
         }
 
-        function renderGrid(gridState) {
-            bingoGrid.innerHTML = '';
-            gridState.forEach((cell, index) => {
-                const cellElement = document.createElement('div');
-                cellElement.dataset.index = index;
+        /**
+         * Calcule la taille de police maximale pour qu'un texte tienne dans sa cellule,
+         * en utilisant la hauteur déjà définie par le Grid Layout (qui garantit l'alignement des lignes).
+         * @param {string} text Le texte à insérer.
+         * @param {HTMLElement} element L'élément DOM de la cellule.
+         * @returns {number} La taille de police en pixels.
+         */
+        function calculateFontSize(text, element) {
+            // Cloner l'élément pour mesurer sans affecter le layout original
+            const clone = element.cloneNode(true);
+            clone.textContent = text;
+            
+            // Appliquer les styles de positionnement pour que le clone ne perturbe pas le DOM visible
+            clone.style.fontSize = `${MAX_FONT_SIZE_PX}px`;
+            
+            // CRITIQUE : Utiliser la largeur et la hauteur réelles de l'élément parent.
+            // On s'assure que le clone prend la même taille que sa destination.
+            clone.style.width = element.offsetWidth + 'px'; 
+            clone.style.height = element.offsetHeight + 'px';
+            
+            clone.style.position = 'absolute';
+            clone.style.top = '-9999px'; // Le placer loin de la vue
+            clone.style.visibility = 'hidden';
+            
+            document.body.appendChild(clone);
 
-                let classes = "flex items-center justify-center p-3 text-center rounded-xl cursor-pointer transition-all duration-200 transform hover:scale-105 shadow-md border border-gray-700";
+            let fontSize = MAX_FONT_SIZE_PX;
+            
+            // La hauteur cible est la hauteur de la case réelle moins le padding et une petite marge de sécurité (4px)
+            const computedStyle = getComputedStyle(element);
+            const paddingTop = parseFloat(computedStyle.paddingTop);
+            const paddingBottom = parseFloat(computedStyle.paddingBottom);
+            const targetHeight = element.offsetHeight - (paddingTop + paddingBottom) - 4; 
+            
+            // Boucle pour réduire la taille de police tant que le contenu déborde de la hauteur de la case
+            // Note: Nous utilisons offsetHeight du clone qui est initialement fixé à element.offsetHeight
+            while (clone.scrollHeight > targetHeight && fontSize > MIN_FONT_SIZE_PX) {
+                fontSize -= 0.5;
+                clone.style.fontSize = `${fontSize}px`;
+            }
 
-                if (cell.validated) {
-                    classes += " bg-green-600 text-white font-bold";
-                } else {
-                    classes += " bg-gray-700 text-gray-200";
-                }
+            document.body.removeChild(clone);
 
-                cellElement.className = classes;
-                cellElement.textContent = cell.text;
-                bingoGrid.appendChild(cellElement);
-            });
+            // Retourne la taille calculée, sans jamais être inférieure à la taille minimale
+            return Math.max(fontSize, MIN_FONT_SIZE_PX);
         }
 
+
+        // --- Logique du Jeu ---
+
         function checkWin(gridState) {
+            if (!gridState || gridState.length !== TOTAL_SQUARES) {
+                showWinStatus(false);
+                return false;
+            }
+
+            // MODIFICATION: Vérifie si TOUTES les cases sont validées
             const allValidated = gridState.every(cell => cell.validated);
+
             if (allValidated) {
-                winMessage.classList.remove('hidden');
+                showWinStatus(true);
+                return true;
+            }
+            
+            showWinStatus(false);
+            return false;
+
+            /* Ancienne logique (pour référence si besoin de revenir aux lignes/diagonales)
+            // Fonction pour vérifier si une ligne d'indices est gagnante
+            const isWinningLine = (indices) => {
+                return indices.every(index => gridState[index].validated);
+            };
+
+            // 1. Vérification des lignes
+            for (let i = 0; i < GRID_SIZE; i++) {
+                const rowIndices = [];
+                for (let j = 0; j < GRID_SIZE; j++) {
+                    rowIndices.push(i * GRID_SIZE + j);
+                }
+                if (isWinningLine(rowIndices)) {
+                    showWinStatus(true);
+                    return true;
+                }
+            }
+
+            // 2. Vérification des colonnes
+            for (let j = 0; j < GRID_SIZE; j++) {
+                const colIndices = [];
+                for (let i = 0; i < GRID_SIZE; i++) {
+                    colIndices.push(i * GRID_SIZE + j);
+                }
+                if (isWinningLine(colIndices)) {
+                    showWinStatus(true);
+                    return true;
+                }
+            }
+
+            // 3. Vérification de la diagonale principale (haut-gauche à bas-droite)
+            const diag1Indices = [];
+            for (let i = 0; i < GRID_SIZE; i++) {
+                diag1Indices.push(i * GRID_SIZE + i);
+            }
+            if (isWinningLine(diag1Indices)) {
+                showWinStatus(true);
+                return true;
+            }
+
+            // 4. Vérification de la deuxième diagonale (haut-droite à bas-gauche)
+            const diag2Indices = [];
+            for (let i = 0; i < GRID_SIZE; i++) {
+                diag2Indices.push(i * GRID_SIZE + (GRID_SIZE - 1 - i));
+            }
+            if (isWinningLine(diag2Indices)) {
+                showWinStatus(true);
+                return true;
+            }
+
+            showWinStatus(false);
+            return false;
+            */
+        }
+
+        function showWinStatus(isWon) {
+            if (isWon) {
+                winStatus.classList.remove('hidden');
+                // Désactive la grille après la victoire
                 bingoGrid.classList.add('pointer-events-none', 'opacity-50');
             } else {
-                winMessage.classList.add('hidden');
+                winStatus.classList.add('hidden');
+                // Assure que la grille est active si on n'a pas gagné
                 bingoGrid.classList.remove('pointer-events-none', 'opacity-50');
             }
         }
 
+
+        // --- Rendu et Initialisation ---
+        
+        // Ceci est la fonction principale de rendu qui utilise l'ajustement dynamique de la police
+        function renderGrid(gridState) {
+            bingoGrid.innerHTML = '';
+            
+            // 1. Générer et insérer les éléments (pour que le Grid Layout définisse les hauteurs de ligne)
+            gridState.forEach((cell, index) => {
+                const cellDiv = document.createElement('div');
+                let baseClasses = 'grid-cell font-semibold transition duration-200 shadow-lg border-2 hover:scale-[1.02]';
+                
+                cellDiv.className = `${baseClasses} ${cell.validated ? 'validated' : 'not-validated'}`;
+                cellDiv.textContent = cell.text;
+                cellDiv.dataset.index = index;
+                bingoGrid.appendChild(cellDiv);
+            });
+
+            // 2. Ajuster la taille de la police pour chaque cellule
+            // Utiliser requestAnimationFrame pour garantir que le navigateur a terminé le layout (hauteurs de lignes)
+            requestAnimationFrame(() => {
+                const cells = bingoGrid.querySelectorAll('.grid-cell');
+                
+                cells.forEach(cell => {
+                    const text = cell.textContent;
+                    // Calcule la taille de police pour que le texte tienne dans la hauteur et la largeur de la cellule
+                    const bestSize = calculateFontSize(text, cell); 
+                    cell.style.fontSize = `${bestSize}px`;
+                });
+            }); 
+            // NOTE: J'ai remplacé le setTimeout par requestAnimationFrame pour une meilleure performance
+            // et une meilleure garantie que le layout est stable avant la mesure.
+        }
+
         function newGame() {
             const shuffledActions = shuffle([...bingoActions]);
-            const selectedActions = shuffledActions.slice(0, TOTAL_SQUARES);
+            // S'assurer qu'on a assez d'actions
+            const selectedActions = shuffledActions.slice(0, TOTAL_SQUARES); 
+            if (selectedActions.length < TOTAL_SQUARES) {
+                console.error("Pas assez d'actions pour remplir la grille.");
+                return;
+            }
 
             const newGridState = selectedActions.map(action => ({
                 text: action,
@@ -161,36 +374,50 @@
 
             renderGrid(newGridState);
             saveGridState(newGridState);
-            checkWin(newGridState);
+            checkWin(newGridState); 
         }
 
         function handleGridClick(event) {
             const cellElement = event.target.closest('div');
-            if (!cellElement || !cellElement.dataset.index) return;
+            // Vérifie si le clic provient bien d'une cellule de la grille et si la grille n'est pas désactivée
+            if (!cellElement || !cellElement.dataset.index || bingoGrid.classList.contains('pointer-events-none')) return;
 
             const index = parseInt(cellElement.dataset.index, 10);
             let gridState = loadGridState();
-            if (!gridState) return;
+            if (!gridState || index >= gridState.length) return;
 
             gridState[index].validated = !gridState[index].validated;
 
+            // On met à jour l'état et on re-rend toute la grille, ce qui recalcule les polices au besoin
             renderGrid(gridState);
             saveGridState(gridState);
             checkWin(gridState);
         }
 
+        // --- Événements ---
         newGridBtn.addEventListener('click', newGame);
         bingoGrid.addEventListener('click', handleGridClick);
 
         window.onload = function() {
+            // Ajout d'un écouteur d'événement pour recalculer les polices lors du redimensionnement
+            // Cela gère les changements d'orientation mobile ou le redimensionnement du navigateur
+            window.addEventListener('resize', () => {
+                const storedState = loadGridState();
+                if (storedState) {
+                    renderGrid(storedState); 
+                }
+            });
+
             const storedState = loadGridState();
             if (storedState) {
+                // Si un état est stocké, on le rend et on vérifie l'état de la victoire
                 renderGrid(storedState);
                 checkWin(storedState);
             } else {
+                // Sinon, on lance une nouvelle partie
                 newGame();
             }
-        };
+        }
     </script>
 </body>
 </html>
