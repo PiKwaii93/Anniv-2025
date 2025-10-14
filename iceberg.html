@@ -13,64 +13,16 @@
             font-family: 'Inter', sans-serif; 
             background-color: #0f172a; /* Bleu nuit */
         }
-        
+        /* Suppression de la classe .container pour utiliser des classes Tailwind directes pour la fluidité */
         .placeholder-image {
             height: auto;
             border-radius: 1rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
             border: 4px solid #334155; /* slate-700 */
-            cursor: pointer; /* Indique qu'elle est cliquable */
-            transition: transform 0.2s ease-in-out;
         }
-
-        .placeholder-image:hover {
-            transform: scale(1.02);
-        }
-        
         .iceberg-title {
             /* Classe pour un titre en dégradé */
             background-image: linear-gradient(45deg, #60a5fa, #3b82f6); /* blue-500 to blue-400 */
-        }
-
-        /* --- Styles de la Modale de Zoom --- */
-        .modal {
-            display: none; /* Masquée par défaut */
-            position: fixed; 
-            z-index: 100; /* Superpose tout le reste */
-            padding-top: 5vh; /* Marge en haut pour le bouton Fermer */
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto; 
-            background-color: rgba(0,0,0,0.9); /* Fond sombre et semi-transparent */
-        }
-
-        .modal-content {
-            margin: auto;
-            display: block;
-            width: 95%; /* Prend 95% de la largeur du viewport */
-            max-width: 1000px; /* Taille maximale sur grand écran */
-            height: auto;
-            border-radius: 0.5rem;
-        }
-
-        /* Bouton Fermer (Close) */
-        .close {
-            position: absolute;
-            top: 15px;
-            right: 35px;
-            color: #f1f1f1;
-            font-size: 40px;
-            font-weight: bold;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: #bbb;
-            text-decoration: none;
         }
     </style>
 </head>
@@ -92,9 +44,7 @@
         <!-- Iceberg Visualisation (Placeholder Image) -->
         <!-- Le conteneur assure un centrage et l'image utilise max-w-lg pour ne pas devenir trop grande sur desktop -->
         <section class="flex justify-center mb-12">
-            <!-- Ajout de l'ID 'myImg' pour le JS -->
-            <img id="myImg" 
-                 src="ICEBERG.png" 
+            <img src="ICEBERG.png"
                  alt="Visualisation de l'Iceberg des Références" 
                  class="placeholder-image w-full max-w-lg mx-auto">
         </section>
@@ -139,38 +89,5 @@
         </a>
 
     </div>
-
-    <!-- The Modal (Modal de Zoom) -->
-    <div id="myModal" class="modal">
-        <span class="close" id="closeModalBtn">&times;</span>
-        <img class="modal-content" id="img01" alt="Image zoomée de l'Iceberg">
-    </div>
-
-    <script>
-        // Récupération des éléments de la modale et de l'image
-        const modal = document.getElementById("myModal");
-        const img = document.getElementById("myImg");
-        const modalImg = document.getElementById("img01");
-        const closeModalBtn = document.getElementById("closeModalBtn");
-
-        // Lorsque l'utilisateur clique sur l'image, ouvre la modale 
-        img.onclick = function(){
-            modal.style.display = "block";
-            modalImg.src = this.src; // Utilise la source de l'image cliquée
-        }
-
-        // Lorsque l'utilisateur clique sur (x), ferme la modale
-        closeModalBtn.onclick = function() { 
-            modal.style.display = "none";
-        }
-
-        // Lorsque l'utilisateur clique n'importe où en dehors de l'image modale, ferme-la
-        modal.onclick = function(event) {
-            // S'assurer que le clic n'est pas sur l'image elle-même ou sur le bouton de fermeture
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        }
-    </script>
 </body>
 </html>
