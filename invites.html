@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Invités</title>
+    <!-- Intégration de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Bleu foncé */
+        }
+        .section-card {
+            @apply bg-slate-800 p-6 rounded-2xl shadow-lg transition-all duration-300;
+        }
+        /* Style pour les cartes des invités */
+        .guest-card {
+            @apply p-4 rounded-xl shadow-md transition duration-200;
+            border: 2px solid transparent;
+        }
+
+        /* Confirmés */
+        .guest-card-confirmed {
+            @apply bg-slate-800 hover:bg-slate-700/80 cursor-pointer;
+            border-color: #34d399; /* vert */
+        }
+        .guest-card-plus {
+            @apply bg-slate-800/70;
+            border-color: #818cf8; /* indigo/violet */
+        }
+
+        /* Peut-être */
+        .guest-card-maybe {
+            @apply bg-slate-800/50 cursor-pointer;
+            border-color: #fcd34d; /* jaune/ambre */
+            opacity: 0.8;
+        }
+
+        /* Demande envoyée */
+        .guest-card-pending {
+            @apply bg-slate-800/60 cursor-pointer;
+            border-color: #38bdf8; /* bleu clair */
+            opacity: 0.9;
+        }
+
+        /* Pas encore envoyé */
+        .guest-card-unsent {
+            @apply bg-slate-900/40 opacity: 0.6; /* Très discret */
+            border-color: #94a3b8; /* gris */
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center p-4 sm:p-8">
+
+    <div class="container mx-auto max-w-4xl w-full">
+
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-green-500">
+                🧑‍🤝‍🧑 Liste des Invités
+            </h1>
+            <p class="mt-4 text-slate-400 text-lg max-w-2xl mx-auto">
+                Qui vient ? Qui hésite ? Le point sur les confirmations pour la soirée !
+            </p>
+        </header>
+        
+        <!-- Indicateur de chargement -->
+        <div id="loading-indicator" class="text-center py-12">
+            <p class="text-xl text-slate-400">Chargement de la liste des invités...</p>
+        </div>
+
+        <!-- Conteneur principal pour les listes -->
+        <main id="guest-lists" class="space-y-8 hidden">
+            <!-- Les statistiques et les sections seront insérées ici par JavaScript -->
+        </main>
+
+        <!-- Bouton de retour -->
+        <a href="index.html" class="mt-12 w-full sm:w-auto inline-block text-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-indigo-500/50">
+            <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
+        </a>
+
+    </div>
+
+    <script>
+        // Fichier source
+        const GUEST_LIST_FILE = 'liste2.md';
+
+        /**
+         * Parse la liste brute pour la transformer en un objet structuré.
+         */
+        function parseGuestList(list) {
+            const confirmedMap = new Map();
+            const maybe = [];
+            const pending = []; // Nouvelle liste
+            const unsent = []; // Nouvelle liste
+            let currentSection = null;
+
+            // Séparer les lignes et nettoyer
+            const lines = list.split('\n').map(line => line.trim()).filter(line => line.length > 0 && line !== '---');
+
+            for (const line of lines) {
+                // Détection des sections basées sur les titres Markdown exacts
+                if (line.includes('## 🔥 Confirmés')) {
+                    currentSection = 'confirmed';
+                    continue;
+                }
+                if (line.includes('## 🤔 Peut-être') || line.includes('## 〰️ Peut-être')) { // Reste compatible avec les deux émojis au cas où
+                    currentSection = 'maybe';
+                    continue;
+                }
+                if (line.includes('## 📤 Demande envoyée')) {
+                    currentSection = 'pending';
+                    continue;
+                }
+                if (line.includes('## 🚫 Pas encore envoyé')) {
+                    currentSection = 'unsent';
+                    continue;
+                }
+                if (line.startsWith('**+ Confirmés avec +1 :**')) {
+                    currentSection = 'plusOneList';
+                    continue;
+                }
+
+                if (line.startsWith('-') || line.startsWith('*')) {
+                    const lineContent = line.substring(1).trim().replace(/\s{2,}/g, ' ');
+                    
+                    if (currentSection === 'confirmed') {
+                        // Invités simples
+                        if (!lineContent.includes('+1')) {
+                            confirmedMap.set(lineContent, { mainName: lineContent, companionName: null });
+                        }
+                    } else if (currentSection === 'maybe') {
+                        maybe.push(lineContent);
+                    } else if (currentSection === 'pending') { // Capture les "Demande envoyée"
+                        pending.push(lineContent);
+                    } else if (currentSection === 'unsent') { // Capture les "Pas encore envoyé"
+                        unsent.push(lineContent);
+                    } else if (currentSection === 'plusOneList') {
+                        // Cas avec +1 (Mathilde +1 (Thomas), Ethan +1)
+                        const plusOneMatch = lineContent.match(/^(.+)\s\+1\s(?:\((.+)\))?$/);
+                        
+                        if (plusOneMatch) {
+                            const mainGuest = plusOneMatch[1].trim();
+                            const companion = plusOneMatch[2] ? plusOneMatch[2].trim() : '(Accompagnant)';
+                            confirmedMap.set(mainGuest, { mainName: mainGuest, companionName: companion });
+                        } else {
+                            // Cas des invités principaux listés ici par erreur/choix (Nolan, Angelina)
+                            confirmedMap.set(lineContent, { mainName: lineContent, companionName: null });
+                        }
+                    }
+                }
+            }
+
+            // Créer le tableau final des confirmés
+            const confirmedArray = Array.from(confirmedMap.values()).sort((a, b) => a.mainName.localeCompare(b.mainName));
+            
+            // Calculer les totaux
+            const totalMainGuests = confirmedArray.length;
+            const totalPlusOneCount = confirmedArray.filter(g => g.companionName).length;
+            const totalGuestsExpected = totalMainGuests + totalPlusOneCount;
+
+            return {
+                confirmed: confirmedArray,
+                maybe: maybe.sort(),
+                pending: pending.sort(), // Ajout de la liste
+                unsent: unsent.sort(), // Ajout de la liste
+                totalGuestsExpected,
+                totalMainGuests,
+                totalPlusOneCount,
+            };
+        }
+
+        /**
+         * Génère le HTML pour les invités confirmés en grille.
+         */
+        function renderConfirmedGrid(data) {
+            const confirmedList = data.confirmed;
+            
+            const gridContent = confirmedList.map(guest => {
+                const isPlusOne = guest.companionName !== null;
+                const cardClass = isPlusOne ? 'guest-card-plus' : 'guest-card-confirmed';
+                
+                return `
+                    <div class="guest-card ${cardClass} shadow-lg hover:shadow-xl">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl ${isPlusOne ? 'text-indigo-400' : 'text-green-400'}">${isPlusOne ? '👫' : '👤'}</span>
+                            <div>
+                                <p class="text-lg font-bold text-slate-50">${guest.mainName}</p>
+                                ${isPlusOne ? 
+                                    `<p class="text-sm font-medium text-indigo-300">
+                                        +1 : ${guest.companionName.replace('(Accompagnant)', 'Invité(e)')}
+                                    </p>` : 
+                                    `<p class="text-xs font-light text-slate-400">Confirmation individuelle</p>`
+                                }
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="section-card bg-slate-800/80 p-6">
+                    <h2 class="text-3xl font-bold mb-6 text-green-400 flex items-center">
+                        <span class="text-4xl mr-3">✅</span> Confirmés (${confirmedList.length})
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${gridContent}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Génère le HTML pour les sections Peut-être, Demande envoyée et Pas encore envoyé.
+         */
+        function renderOtherGrid(title, icon, names, colorClass, cardBaseClass) {
+            if (names.length === 0) return '';
+
+            const gridContent = names.map(name => {
+                return `
+                    <div class="guest-card ${cardBaseClass} shadow-md">
+                        <div class="flex items-center space-x-3">
+                            <span class="text-3xl ${colorClass}">${icon}</span>
+                            <p class="text-lg font-semibold text-slate-200">${name}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="section-card bg-slate-800/80 p-6">
+                    <h2 class="text-2xl font-bold mb-6 ${colorClass} flex items-center">
+                        <span class="text-3xl mr-3">${icon}</span> ${title} (${names.length})
+                    </h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                        ${gridContent}
+                    </div>
+                </div>
+            `;
+        }
+
+
+        /**
+         * Génère la carte de statistiques.
+         */
+        function renderStatsCard(data) {
+            const total = data.totalGuestsExpected;
+            const mainConfirmed = data.totalMainGuests;
+            const plusOneCount = data.totalPlusOneCount;
+            const maybeCount = data.maybe.length;
+            const pendingCount = data.pending.length; // Compteur
+            const unsentCount = data.unsent.length; // Compteur
+
+            const statsHTML = `
+                <div class="section-card bg-slate-800/80 p-6 border-b-4 border-teal-400">
+                    <h2 class="text-2xl font-bold mb-6 text-slate-300">
+                        Synthèse de l'événement
+                    </h2>
+
+                    <div class="text-center mb-6">
+                        <p class="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-green-500">
+                            ${total}
+                        </p>
+                        <p class="text-lg font-semibold text-slate-400 mt-1">Personnes Confirmées au Total</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                        <!-- Stat 1: Confirmés -->
+                        <div class="p-3 rounded-lg bg-green-900/40 border border-green-700/50">
+                            <p class="text-3xl font-bold text-green-400">${mainConfirmed}</p>
+                            <p class="text-xs font-medium text-green-300 mt-1">👤 Invités Principaux</p>
+                        </div>
+                        
+                        <!-- Stat 2: Accompagnants -->
+                        <div class="p-3 rounded-lg bg-indigo-900/40 border border-indigo-700/50">
+                            <p class="text-3xl font-bold text-indigo-400">${plusOneCount}</p>
+                            <p class="text-xs font-medium text-indigo-300 mt-1">➕ Accompagnants</p>
+                        </div>
+                        
+                        <!-- Stat 3: Peut-être -->
+                        <div class="p-3 rounded-lg bg-yellow-900/40 border border-yellow-700/50">
+                            <p class="text-3xl font-bold text-yellow-400">${maybeCount}</p>
+                            <p class="text-xs font-medium text-yellow-300 mt-1">🤔 "Peut-être"</p>
+                        </div>
+
+                        <!-- Stat 4: En attente -->
+                        <div class="p-3 rounded-lg bg-blue-900/40 border border-blue-700/50">
+                            <p class="text-3xl font-bold text-blue-400">${pendingCount + unsentCount}</p>
+                            <p class="text-xs font-medium text-blue-300 mt-1">📧 En Attente (Total)</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return statsHTML;
+        }
+        
+        /**
+         * Charge le contenu du fichier Markdown et lance le rendu.
+         */
+        async function loadAndRenderGuests() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const mainContainer = document.getElementById('guest-lists');
+            
+            try {
+                // Requête HTTP pour lire le fichier Markdown
+                const response = await fetch(GUEST_LIST_FILE);
+                
+                if (!response.ok) {
+                    throw new Error("Erreur de chargement du fichier: " + response.statusText);
+                }
+                
+                const rawGuestList = await response.text();
+                
+                // Masquer l'indicateur de chargement
+                loadingIndicator.classList.add('hidden');
+                mainContainer.classList.remove('hidden');
+
+                // Traiter et afficher la liste
+                const data = parseGuestList(rawGuestList);
+                mainContainer.innerHTML = ''; // Nettoyer le conteneur
+
+                // 1. Carte de statistiques
+                mainContainer.innerHTML += renderStatsCard(data);
+
+                // 2. Section Confirmés en grille détaillée
+                mainContainer.innerHTML += renderConfirmedGrid(data);
+
+                // 3. Section Peut-être en grille simplifiée
+                mainContainer.innerHTML += renderOtherGrid(
+                    'Peut-être',
+                    '🤔',
+                    data.maybe,
+                    'text-yellow-400',
+                    'guest-card-maybe'
+                );
+
+                // 4. Section Demande Envoyée
+                mainContainer.innerHTML += renderOtherGrid(
+                    'Demande envoyée (en attente)',
+                    '📤',
+                    data.pending,
+                    'text-blue-400',
+                    'guest-card-pending'
+                );
+                
+                // 5. Section Pas Encore Envoyé
+                mainContainer.innerHTML += renderOtherGrid(
+                    'Pas encore envoyé',
+                    '🚫',
+                    data.unsent,
+                    'text-slate-400',
+                    'guest-card-unsent'
+                );
+
+                
+            } catch (error) {
+                console.error("Erreur lors du chargement ou du rendu de la liste:", error);
+                loadingIndicator.innerHTML = `<p class="text-xl text-red-500">Erreur : Impossible de charger la liste des invités (${error.message}).</p>`;
+            }
+        }
+
+        window.onload = loadAndRenderGuests;
+    </script>
+</body>
+</html>

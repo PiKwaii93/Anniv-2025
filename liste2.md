@@ -53,7 +53,7 @@
 
 ---
 
-## 〰️ Peut-être
+## 🤔 Peut-être
 - Leo  
 - Matthis nickels  
 - Seb  
@@ -63,11 +63,11 @@
 
 ---
 
-## ✅ Demande envoyée (en attente de réponse)
+## 📤 Demande envoyée
 
 ---
 
-## ❌ Pas encore envoyé   
+## 🚫 Pas encore envoyé   
 - Garance  
 - Anaia  
 - Charly  
@@ -77,12 +77,4 @@
 - Bérénice   
 - Corentin coco  
 
-
-Hola 🎉
-J’organise mon anniv et vous êtes tous conviés ! 🥳
-
-(Petit hic : Insta limite à 31 personnes, donc j’ai pas pu ajouter les +1 ni les potes de Matthis — Camtard, Arthur, Matthis, Baptiste, Clemsow — mais évidemment ils sont invités aussi 💯. Le groupe est juste full, voilà)
-
-👉 Ça se passe chez moi, à partir de 21h min.
-Ça va être lourd, j’ai hâte de fêter ça avec vous 🔥
 
