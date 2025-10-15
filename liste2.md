@@ -17,7 +17,6 @@
 - Talvyn  
 - Quentin  
 - Thomas N  
-- Thomas M  
 - Ethan  
 - Albano  
 - Benji  
@@ -28,7 +27,6 @@
 - Pam  
 - Fanny  
 - Alison  
-- Élodie  
 - Louis  
 - Carla  
 - Corentin co  
@@ -48,9 +46,8 @@
 - Elena +1 (Jed)  
 - Julien +1 (Léa)  
 - Ethan +1  (Copine Ethan)
-- Lorenzo +1 (Margot)  
 - Baptiste +1 (Copine Baptiste)
-- Elodie +1 (Amie Elodie)
+- Elodie +1 (Amie é)
 
 ---
 
@@ -60,8 +57,6 @@
 - Seb  
 - Nico  
 - Cydney  
-- Clemsow 
-- Camille  
 - Garance  
 - Anaia  
 - Nolan
@@ -83,5 +78,8 @@
 
 ## 🚫 Pas Dispo  
 - Alexandrine  
+- Thomas M  
+- Clemsow 
+- Camille  
 
 
