@@ -12,7 +12,6 @@
 - Rémi  
 - Adam  
 - Maël  
-- Julien  
 - Elio  
 - Talvyn  
 - Quentin  
@@ -30,7 +29,6 @@
 - Louis  
 - Carla  
 - Corentin co  
-- Camtard  
 - Arthur  
 - Matthis  
 - Baptiste  
@@ -39,23 +37,21 @@
 - Inès 
 - Elodie 
 - Camille Hazman
-- Matthis nickels  
+- Mathis nickels  
 
 **+ Confirmés avec +1 :**
 - Mathilde +1 (Thomas)  
 - Sephora +1 (Clément)  
 - Elena +1 (Jed)  
-- Julien +1 (Léa)  
 - Ethan +1  (Copine Ethan)
 - Baptiste +1 (Copine Baptiste)
-- Elodie +1 (Amie é)
+- Elodie +1 (Amie Elodie)
 
 ---
 
 ## 🤔 Peut-être
 - Cydney  
 - Nolan
-- Angelina 
 - Léa
 
 ---
@@ -75,10 +71,13 @@
 - Alexandrine  
 - Thomas M  
 - Clemsow 
-- Camille  
+- Camtard  
 - Seb  
 - Nico  
 - Garance  
 - Anaia  
 - Leo  
+- Julien  
+- Julien +1 (Léa)  
+- Angelina 
 
