@@ -32,6 +32,12 @@
             @apply bg-slate-800/70;
             border-color: #818cf8; /* indigo/violet */
         }
+        
+        /* Dort à la maison (Nouvelle couleur : violet foncé) */
+        .guest-card-sleep {
+            @apply bg-slate-800/70 cursor-pointer;
+            border-color: #c084fc; /* violet clair */
+        }
 
         /* Peut-être */
         .guest-card-maybe {
@@ -47,7 +53,7 @@
             opacity: 0.9;
         }
 
-        /* Pas encore envoyé */
+        /* Pas Dispo */
         .guest-card-unsent {
             @apply bg-slate-900/40 opacity: 0.6; /* Très discret */
             border-color: #94a3b8; /* gris */
@@ -94,8 +100,9 @@
         function parseGuestList(list) {
             const confirmedMap = new Map();
             const maybe = [];
-            const pending = []; // Nouvelle liste
-            const unsent = []; // Nouvelle liste
+            const sleep = []; // Nouvelle liste pour ceux qui dorment
+            const pending = []; 
+            const unsent = []; 
             let currentSection = null;
 
             // Séparer les lignes et nettoyer
@@ -107,7 +114,11 @@
                     currentSection = 'confirmed';
                     continue;
                 }
-                if (line.includes('## 🤔 Peut-être') || line.includes('## 〰️ Peut-être')) { // Reste compatible avec les deux émojis au cas où
+                if (line.includes('## 😴 Dort à la maison')) {
+                    currentSection = 'sleep';
+                    continue;
+                }
+                if (line.includes('## 🤔 Peut-être') || line.includes('## 〰️ Peut-être')) { 
                     currentSection = 'maybe';
                     continue;
                 }
@@ -115,7 +126,7 @@
                     currentSection = 'pending';
                     continue;
                 }
-                if (line.includes('## 🚫 Pas encore envoyé')) {
+                if (line.includes('## 🚫 Pas Dispo')) {
                     currentSection = 'unsent';
                     continue;
                 }
@@ -132,11 +143,13 @@
                         if (!lineContent.includes('+1')) {
                             confirmedMap.set(lineContent, { mainName: lineContent, companionName: null });
                         }
+                    } else if (currentSection === 'sleep') { // Capture les "Dort à la maison"
+                        sleep.push(lineContent);
                     } else if (currentSection === 'maybe') {
                         maybe.push(lineContent);
-                    } else if (currentSection === 'pending') { // Capture les "Demande envoyée"
+                    } else if (currentSection === 'pending') { 
                         pending.push(lineContent);
-                    } else if (currentSection === 'unsent') { // Capture les "Pas encore envoyé"
+                    } else if (currentSection === 'unsent') { 
                         unsent.push(lineContent);
                     } else if (currentSection === 'plusOneList') {
                         // Cas avec +1 (Mathilde +1 (Thomas), Ethan +1)
@@ -164,12 +177,14 @@
 
             return {
                 confirmed: confirmedArray,
+                sleep: sleep.sort(), // Ajout de la liste
                 maybe: maybe.sort(),
-                pending: pending.sort(), // Ajout de la liste
-                unsent: unsent.sort(), // Ajout de la liste
+                pending: pending.sort(), 
+                unsent: unsent.sort(), 
                 totalGuestsExpected,
                 totalMainGuests,
                 totalPlusOneCount,
+                totalSleepers: sleep.length, // Nouveau total
             };
         }
 
@@ -214,7 +229,7 @@
         }
 
         /**
-         * Génère le HTML pour les sections Peut-être, Demande envoyée et Pas encore envoyé.
+         * Génère le HTML pour les sections Peut-être, Demande envoyée, Pas Dispo, et Dort à la maison.
          */
         function renderOtherGrid(title, icon, names, colorClass, cardBaseClass) {
             if (names.length === 0) return '';
@@ -251,8 +266,9 @@
             const mainConfirmed = data.totalMainGuests;
             const plusOneCount = data.totalPlusOneCount;
             const maybeCount = data.maybe.length;
-            const pendingCount = data.pending.length; // Compteur
-            const unsentCount = data.unsent.length; // Compteur
+            const pendingCount = data.pending.length; 
+            const unsentCount = data.unsent.length; 
+            const sleepCount = data.totalSleepers; // Nouveau compteur
 
             const statsHTML = `
                 <div class="section-card bg-slate-800/80 p-6 border-b-4 border-teal-400">
@@ -267,7 +283,7 @@
                         <p class="text-lg font-semibold text-slate-400 mt-1">Personnes Confirmées au Total</p>
                     </div>
 
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 text-center">
                         <!-- Stat 1: Confirmés -->
                         <div class="p-3 rounded-lg bg-green-900/40 border border-green-700/50">
                             <p class="text-3xl font-bold text-green-400">${mainConfirmed}</p>
@@ -279,14 +295,20 @@
                             <p class="text-3xl font-bold text-indigo-400">${plusOneCount}</p>
                             <p class="text-xs font-medium text-indigo-300 mt-1">➕ Accompagnants</p>
                         </div>
+
+                        <!-- Stat 3: Dort à la maison -->
+                        <div class="p-3 rounded-lg bg-purple-900/40 border border-purple-700/50">
+                            <p class="text-3xl font-bold text-purple-400">${sleepCount}</p>
+                            <p class="text-xs font-medium text-purple-300 mt-1">😴 Vont dormir</p>
+                        </div>
                         
-                        <!-- Stat 3: Peut-être -->
+                        <!-- Stat 4: Peut-être -->
                         <div class="p-3 rounded-lg bg-yellow-900/40 border border-yellow-700/50">
                             <p class="text-3xl font-bold text-yellow-400">${maybeCount}</p>
                             <p class="text-xs font-medium text-yellow-300 mt-1">🤔 "Peut-être"</p>
                         </div>
 
-                        <!-- Stat 4: En attente -->
+                        <!-- Stat 5: En attente -->
                         <div class="p-3 rounded-lg bg-blue-900/40 border border-blue-700/50">
                             <p class="text-3xl font-bold text-blue-400">${pendingCount + unsentCount}</p>
                             <p class="text-xs font-medium text-blue-300 mt-1">📧 En Attente (Total)</p>
@@ -327,8 +349,17 @@
 
                 // 2. Section Confirmés en grille détaillée
                 mainContainer.innerHTML += renderConfirmedGrid(data);
+                
+                // NOUVEAU: 3. Section Dort à la maison
+                mainContainer.innerHTML += renderOtherGrid(
+                    'Dort à la maison',
+                    '😴',
+                    data.sleep,
+                    'text-purple-400',
+                    'guest-card-sleep'
+                );
 
-                // 3. Section Peut-être en grille simplifiée
+                // 4. Section Peut-être en grille simplifiée
                 mainContainer.innerHTML += renderOtherGrid(
                     'Peut-être',
                     '🤔',
@@ -337,7 +368,7 @@
                     'guest-card-maybe'
                 );
 
-                // 4. Section Demande Envoyée
+                // 5. Section Demande Envoyée
                 mainContainer.innerHTML += renderOtherGrid(
                     'Demande envoyée (en attente)',
                     '📤',
@@ -346,9 +377,9 @@
                     'guest-card-pending'
                 );
                 
-                // 5. Section Pas Encore Envoyé
+                // 6. Section Pas Dispo
                 mainContainer.innerHTML += renderOtherGrid(
-                    'Pas encore envoyé',
+                    'Pas Dispo',
                     '🚫',
                     data.unsent,
                     'text-slate-400',

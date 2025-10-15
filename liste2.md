@@ -28,7 +28,6 @@
 - Pam  
 - Fanny  
 - Alison  
-- Camille  
 - Élodie  
 - Louis  
 - Carla  
@@ -37,19 +36,21 @@
 - Arthur  
 - Matthis  
 - Baptiste  
-- Clemsow 
 - Camille (Garance)
 - Edy (Garance)
+- Inès 
+- Elodie 
+- Camille Hazman
 
 **+ Confirmés avec +1 :**
 - Mathilde +1 (Thomas)  
 - Sephora +1 (Clément)  
 - Elena +1 (Jed)  
 - Julien +1 (Léa)  
-- Ethan +1  
+- Ethan +1  (Copine Ethan)
 - Lorenzo +1 (Margot)  
-- Nolan
-- Angelina  
+- Baptiste +1 (Copine Baptiste)
+- Elodie +1 (Amie Elodie)
 
 ---
 
@@ -58,8 +59,21 @@
 - Matthis nickels  
 - Seb  
 - Nico  
-- Alexandrine  
 - Cydney  
+- Clemsow 
+- Camille  
+- Garance  
+- Anaia  
+- Nolan
+- Angelina 
+- Léa
+
+---
+
+## 😴 Dort à la maison
+- Fanny
+- Pam
+- Léa
 
 ---
 
@@ -67,14 +81,7 @@
 
 ---
 
-## 🚫 Pas encore envoyé   
-- Garance  
-- Anaia  
-- Charly  
-- Inès B  
-- Nicolas  
-- Inès  
-- Bérénice   
-- Corentin coco  
+## 🚫 Pas Dispo  
+- Alexandrine  
 
 
