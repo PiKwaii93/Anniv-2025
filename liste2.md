@@ -39,6 +39,7 @@
 - Inès 
 - Elodie 
 - Camille Hazman
+- Matthis nickels  
 
 **+ Confirmés avec +1 :**
 - Mathilde +1 (Thomas)  
@@ -52,13 +53,7 @@
 ---
 
 ## 🤔 Peut-être
-- Leo  
-- Matthis nickels  
-- Seb  
-- Nico  
 - Cydney  
-- Garance  
-- Anaia  
 - Nolan
 - Angelina 
 - Léa
@@ -81,5 +76,9 @@
 - Thomas M  
 - Clemsow 
 - Camille  
-
+- Seb  
+- Nico  
+- Garance  
+- Anaia  
+- Leo  
 
