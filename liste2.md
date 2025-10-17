@@ -38,6 +38,11 @@
 - Elodie 
 - Camille Hazman
 - Mathis nickels  
+- Joachim
+- Léa
+- Chacon
+- Hortense
+- Alexandra
 
 **+ Confirmés avec +1 :**
 - Mathilde +1 (Thomas)  
@@ -46,13 +51,13 @@
 - Ethan +1  (Copine Ethan)
 - Baptiste +1 (Copine Baptiste)
 - Elodie +1 (Amie Elodie)
+- Joachim +1 (Copine Joachim)
 
 ---
 
 ## 🤔 Peut-être
 - Cydney  
 - Nolan
-- Léa
 
 ---
 
@@ -60,6 +65,8 @@
 - Fanny
 - Pam
 - Léa
+- Elodie +1 (Amie Elodie)
+- Joachim +1 (Copine Joachim)
 
 ---
 
