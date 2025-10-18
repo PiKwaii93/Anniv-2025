@@ -48,7 +48,6 @@
 - Mathilde +1 (Thomas)  
 - Ethan +1  (Lycia)
 - Baptiste +1 (Copine Baptiste)
-- Elodie +1 (Amie Elodie)
 - Joachim +1 (Copine Joachim)
 
 ---
@@ -83,6 +82,7 @@
 - Nico  
 - Garance  
 - Anaia  
+- Elodie +1 (Amie Elodie)
 - Leo  
 - Julien  
 - Julien +1 (Léa)  
