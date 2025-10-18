@@ -135,24 +135,63 @@
     </footer>
 
     <script>
-        // Liste des missions pour le jeu
+        // Liste des missions pour le jeu (Mises à jour avec emojis)
         const missions = [
-            "Convaincre votre cible de faire une high-five.",
-            "Dire 'Bingo !' très fort à votre cible.",
-            "Obtenir un verre d'eau de votre cible.",
-            "Raconter une blague à votre cible et la faire rire.",
-            "Faire un compliment à votre cible.",
-            "Parler à votre cible avec un accent étranger pendant 30 secondes.",
-            "Convaincre votre cible de vous prêter son téléphone.",
-            "Taper dans la main de votre cible.",
-            "Faire une 'photo de groupe' avec votre cible.",
-            "Faire un câlin à votre cible.",
-            "Demander un conseil à votre cible sur la soirée.",
-            "Échanger de places avec votre cible pendant 30 secondes.",
-            "Dire 'Je t'aime' à votre cible, mais avec le sourire.",
-            "Faire le tour de la pièce en regardant votre cible.",
-            "Faire semblant d'être un robot et saluer votre cible.",
-            "Chanter une chanson de 5 secondes à votre cible."
+            "💋 Obtenir un baiser sur la joue de ta cible (consenti).",
+            "🤫 Lui faire murmurer à l’oreille “Tu es irrésistible”.",
+            "👒 L’amener à porter un accessoire ridicule pendant 10 minutes (avec son accord).",
+            "📱 Lui faire avouer la dernière personne qui lui a envoyé un DM gênant.",
+            "👑 L’amener à t’appeler “chef” pendant 1min.",
+            "👕 Obtenir d’elle qu’elle échange un vêtement (écharpe, bonnet) avec toi.",
+            "🎤 La faire chanter pendant 10s.",
+            "🫂 La pousser à demander un câlin collectif en public.",
+            "✍️ Lui faire promettre (par écrit) de faire quelque chose que tu veux.",
+            "🗣️ Lui faire faire un mini-discours en mode “je suis coupable”.",
+            "🤪 Obtenir une photo d’elle en faisant une grimace.",
+            "💘 L’amener à donner son meilleur conseil de séduction.",
+            "🥂 La convaincre d’échanger son verre contre un autre (et tenir la conversation).",
+            "🎭 La faire imiter une célébrité.",
+            "👶 Lui faire confier le surnom le plus ridicule qu’on lui a donné.",
+            "🤳 Obtenir un selfie.",
+            "📵 La convaincre de lâcher son smartphone 5 minutes et de le confier à toi.",
+            "💔 Lui faire mimer une rupture dramatique (avec toi comme complice).",
+            "📸 Lui faire poser pour une fausse couverture de magazine.",
+            "🏷️ Lui faire promettre de porter un surnom choisi par toi une heure.",
+            "💖 Obtenir un échange de compliments exagérés (style soap opera).",
+            "📝 L’amener à signer un “contrat” ridicule (post-it) pour faire une tâche absurde.",
+            "🤐 Lui faire prononcer son secret le moins gênant (choisi par elle).",
+            "💃 Lui faire demander à quelqu’un de danser.",
+            "🤦‍♀️ Lui faire raconter la pire excuse qu’elle a utilisée pour annuler un rencard.",
+            "👗 Lui faire faire un compliment exagéré sur sa tenue (genre soap).",
+            "⌚ Lui faire prêter un objet perso (bandeau, montre) pour une minute.",
+            "👃 Lui faire deviner le parfum d’une personne les yeux fermés.",
+            "🤣 Lui faire promettre de ne pas rire pendant 1 minute (et l’obliger à essayer).",
+            "🥰 Lui faire avouer son petit crush (si elle est ok à en parler).",
+            "❤️ Lui faire dessiner un cœur sur son bras.",
+            "🤫 Lui faire promettre de garder un secret anodin pendant la soirée.",
+            "📢 Lui faire scander une phrase ridicule.",
+            "🤳 Lui faire prêter son téléphone pour un faux selfie ultra ghetto.",
+            "🌟 Lui faire inventer un compliment hyper-spéciaux sur quelqu’un d’autre.",
+            "🚶‍♀️ Lui faire marcher comme un mannequin sur 5 pas.",
+            "🎤 Lui faire faire un mini-spectacle de 20s (chant, danse ou poésie).",
+            "🌶️ Lui faire écrire une phrase coquine sur un post-it et la montrer (non explicite).",
+            "🎶 Lui faire chanter le refrain d’une chanson honteuse.",
+            "🩹 Lui faire accepter de porter un pansement sur le front (pour la honte).",
+            "🤯 Lui faire décrire sa pire drague ou pire RDV.",
+            "⚔️ Lui faire lancer un défi à quelqu’un d’autre.",
+            "👑 Lui faire faire une révérence exagérée devant une personne choisie.",
+            "🤡 Lui faire imiter la façon de parler d’un invité pendant 10s.",
+            "📷 Lui faire demander un selfie à un inconnu.",
+            "💍 Lui faire simuler une demande en mariage parodique (avec toi complice).",
+            "🕺 Lui faire danser comme si elle était sur scène pendant 10s.",
+            "💪 Lui faire faire 10 pompes (ou un geste sportif).",
+            "💣 Lui faire accepter d’être photobombée volontairement pour 3 photos.",
+            "💡 Lui faire inventer un surnom pour la dernière personne qui est entrée dans la pièce.",
+            "🤩 Lui faire annoncer qu’elle sera la star de la prochaine soirée (avec mise en scène).",
+            "📣 Lui faire créer un slogan pour la soirée et le chanter une fois.",
+            "🥃 Lui fait prendre un cul sec.",
+            "💃 Danser avec elle.",
+            "💬 Lui faire avouer quelque chose."
         ];
 
         // Références aux éléments du DOM
@@ -357,7 +396,10 @@
             if (players.length > 1) {
                 assignMissions();
             } else {
-                alert("Ajoutez au moins deux joueurs pour commencer.");
+                // Utilisation d'une modale ou d'un message visible au lieu d'alert()
+                errorMessage.textContent = "Ajoutez au moins deux joueurs pour commencer.";
+                errorMessage.classList.remove('hidden');
+                setTimeout(() => errorMessage.classList.add('hidden'), 3000);
             }
         }
         

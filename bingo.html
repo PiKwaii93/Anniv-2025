@@ -124,34 +124,158 @@
         // Taille minimale de la police pour la lisibilité
         const MIN_FONT_SIZE_PX = window.innerWidth < 640 ? 10 : 12; 
 
-        // Actions de Bingo (à personnaliser selon votre soirée !)
+        // Actions de Bingo PERSONNALISÉES (avec émojis ajoutés)
         const bingoActions = [
-            "Quelqu'un raconte une anecdote embarrassante.",
-            "Un invité se plaint de la musique.",
-            "Quelqu'un utilise le mot 'littéralement'.",
-            "Un smartphone est cassé ou tombe dans l'eau.",
-            "On voit un 'danseur' embarrassant.",
-            "Un invité mentionne son travail plus de trois fois.",
-            "On commande de la nourriture à emporter.",
-            "Le chien ou le chat devient le centre de l'attention.",
-            "Un débat politique/religieux éclate.",
-            "Quelqu'un propose un shot de tequila.",
-            "On entend une chanson de Céline Dion (ou similaire).",
-            "Un couple se dispute.",
-            "Quelqu'un fait un 'cheers' trop long.",
-            "Un invité est déjà parti avant minuit.",
-            "Quelqu'un apporte un plat bizarre/non demandé.",
-            "Un invité pose une question de quiz sans connaître la réponse.",
-            "Quelqu'un oublie le prénom d'un autre invité.",
-            "Une personne parle d'une série que personne d'autre n'a vue.",
-            "Un invité dit 'J'étais pas si saoul que ça...' en parlant du passé.",
-            "Quelqu'un fait une imitation ratée.",
-            "La lumière est tamisée pour l'ambiance.",
-            "Un invité se prend pour le DJ.",
-            "On entend un rire de méchant de dessin animé.",
-            "Quelqu'un parle de sport intensément.",
-            "Un invité propose de faire un jeu de société.",
-            "Quelqu'un utilise une expression très vieille/démodée.",
+            "Charlotte lance une choré 👯‍♀️",
+            "Thomas N / Sephora Octogone 🥊",
+            "Maël s'asseoit et bouge plus pendant 1h 🛋️",
+            "Alex lance des shots 🥃",
+            "Talvyn lance un sujet de cul 🍑",
+            "Quelqu'un lance un Tu préfères 🤔",
+            "On a perdu quelqu'un 👤",
+            "Lucie perd au beer pong 📉",
+            "Quelqu'un gratte un ticket à gratter 🎰",
+            "Clément twerk 💃",
+            "Danse sexy d'Elena 🔥",
+            "Karaoké Kongolese sous bbl 🎤🐒",
+            "Quelqu'un vomit 🤮",
+            "Couple se galoche 💋",
+            "Striptease / limousin 🤠",
+            "Lorenzo masse quelqu'un 💆‍♂️",
+            "Adam est aigri 😠",
+            "Adam est plus aigri car il a vu une fille qui lui plaît 😏",
+            "Pam fais son geek Yu-Gi-Oh 👾",
+            "Rémi giga chad face 😎",
+            "Shacon perd au shifutizz 🃏",
+            "Benji est présent ✅",
+            "Albano accuse quelqu'un d'être raciste 🗣️",
+            "Maxence est accusé de racisme 🛑",
+            "Maxence fait miaou miaou 😾",
+            "Quentin fume des substances 💨",
+            "Florian cul sec 🥤",
+            "Quelqu'un d'autre prend le coktail du chef 🍹",
+            "Mathilde s'endort / rentré 😴🚪",
+            "Taïs marche sur quelqu'un 👣",
+            "Oriane / Lucie Octogone 🤼‍♀️",
+            "Killer terminé 🔪",
+            "Assassin terminé 🎯",
+            "Alex fait Blue Star sur just dance 🕺",
+            "Maxence souffle ses bougies 🎂",
+            "Quelqu'un réussi une double traversée du désert 🌵🌵",
+            "Clément se fait claquer le cul 👋🍑",
+            "Maxence se fait claquer le cul 👋🍑",
+            "Lorenzo fait une déclaration d'amitié 🥰",
+            "Alison joue à un jeu d'alcool 🎲",
+            "Ethan RP Ekko ⏳",
+            "Elio est raciste 😡",
+            "Inès sociabilise avec tout le monde 💬",
+            "Elena hurle ! 😱",
+            "Session JDR 🐉",
+            "Oriane écrase quelqu'un avec des échasses 🦵💥",
+            "Carrelage qui saute 💣",
+            "Chaise cassée 🔨",
+            "Verre cassé 🍸❌",
+            "Quelqu'un reverse un verre 💧",
+            "Session confessionnal 🤫",
+            "Spatule de la confession 🥄",
+            "Carla se trémousse sur le dancefloor 🎶",
+            "Thomas N boit de l'alcool 😱🍷",
+            "Mathis parle de LoL 🎮",
+            "Matthis fait son vieux 👴",
+            "Une contre soirée à lieu 🏘️",
+            "Joachim prend un Narnia 🧥",
+            "Lycia se fait draguer par une meuf 🏳️‍🌈",
+            "Élodie gagne au beer pong 🏆",
+            "Maël parle politique 🏛️",
+            "Camille H découvre l'iceberg 🧊",
+            "Camille boit pour oublier 😢🍺",
+            "Quelqu'un commande a manger 🍕",
+            "Edy natural 20 ✨",
+            "Arthur rage 🤬",
+            "Maxence aime pas ses cadeaux 🎁👎",
+            "Maxence aime ses cadeaux 🎁👍",
+            "Quelqu'un part faire un tour 🚶‍♂️",
+            "Quelqu'un arrive 4+ heures en retard ⏱️",
+            "Alexandra se plaint de l'école 📚",
+            "Hortense prépare un coktail signature 🍸👌",
+            "Réunion dans la chambre de Maxence 🤫",
+            "Toilettes a 2 ? 🚻",
+            "Lucie tape quelqu'un 🤛",
+            "Pam gagné au beer pong 🥇",
+            "Alex se fait frapper 🤕",
+            "Maxence se fait agresser 😠",
+            "Rémi est trop beau 😍",
+            "Alex est un sale traître 🐍",
+            "Alex passe pour un raciste 🤦‍♂️",
+            "Talvyn sort une excuse 🤥",
+            "Talvyn reste 30min devant la maison avant de rentrer 🚪",
+            "Corentin donne son avis sur un film 🎬",
+            "Lorenzo fait son daron 👨‍👧",
+            "Sephora fait sa bad bitch 💅",
+            "Léa bat quelqu'un à une épreuve physique 💪",
+            "Fanny drague quelqu'un 😉",
+            "Pam parle de son mariage 💍",
+            "Pam parle de son EVG 🤵‍♂️",
+            "Pam découvre les secrets de l'EVJF 🤫👰‍♀️",
+            "Fanny parle de son mariage 💍",
+            "Fanny parle de son EVJF 👰‍♀️",
+            "Fanny découvre les secrets de l'EVG 🤫🤵‍♂️",
+            "Sephora chante mal 🎶😂",
+            "Un Disney passe 🏰",
+            "Quelqu'un déchire un vêtement 👚 rip",
+            "Elio vient bien habillé 👔",
+            "Quelqu'un vient en joggo 🏃‍♀️",
+            "Elio fait une tirade en japonais 🇯🇵",
+            "Pyramide 🔺",
+            "Traversée du désert 🥃🌵",
+            "Purple +12 🍇",
+            "Rémi se trémousse sur Dualipa 🕺🎵",
+            "Sephora se trémousse sur du Rihanna 💃🎵",
+            "Elena est trop belle ✨",
+            "Quelqu'un explique les tréfonds le l'iceberg 🧐🧊",
+            "Quelqu'un rajoute un élément a l'iceberg 📝🧊",
+            "Charlotte cul sec 🍻",
+            "Charlotte joue une partie de beer pong 🏓",
+            "Mathilde danse un slow 🕯️",
+            "Mathilde gagne à un jeu d'alcool 🥂",
+            "Maël parle d'Halloween 🎃",
+            "Adam casse là démarche 🚶‍♂️🚶‍♂️",
+            "Albano casse là démarche 🚶‍♂️🚶‍♂️",
+            "Adam se fait vénérer 🙏",
+            "Albano & Adam session vannes 😂",
+            "Clément F lance une compétition de twerk 🍑🏆",
+            "Clément soulève quelqu'un 🏋️‍♂️",
+            "Chacon coktail signature 🍹",
+            "Arthur double cul sec 🥃🥃",
+            "Maxence frappe Sephora 👊",
+            "Maxence fait le jeu de la ceinture à quelqu'un 👌",
+            "Charlotte prends 3 shots dans la soirée 🍹🍹🍹",
+            "Charlotte se présente en tant que falucharde 🎓",
+            "Elena RP réception hôtel 🛎️",
+            "Sephora maquille quelqu'un 💄",
+            "Adam fait une de déclaration de guerre à Disney ⚔️🐭",
+            "Albano atomise quelqu'un au beer pong 💣🏓",
+            "Quelqu'un joue à LoL 💻",
+            "Elio raconte son anecdotes iceberg 📖🧊",
+            "Sephora raconte son anecdotes iceberg 📖🧊",
+            "quelqu'un perd a la traversé du désert 😭🌵",
+            "Alex crie les sons d'été ☀️🔊",
+            "Alexandra gagne contre quelqu'un de LS 🥇",
+            "Alison cul sec 🍻",
+            "Baptiste perds au beer pong 🥺🏓",
+            "Baptiste reste avec sa copine 👩‍❤️‍👨",
+            "Benji se fait maquiller 🎨",
+            "Benji rattrape le temps perdu (tout les sens du terme) ⏳😅",
+            "Benji cul sec 🍻",
+            "Camille apprend l'iceberg 🤓🧊",
+            "Edy apprend l'iceberg 🤓🧊",
+            "Camille H rattrape le temps perdu 🏃‍♀️💨",
+            "Faites en sorte que carla fasse partie du groupe soirée 🍻👯‍♀️",
+            "Faites en sortes que Inès fasse partie du groupe soirée 🍻👯‍♀️",
+            "Elena sauvr quelqu'un 🚑",
+            "Elena verse de l'alcool dans la bouche de quelqu'un 👄🥂",
+            "Rappeler a Ethan que c'est un jeunot 👶",
+            "Quelqu'un se plaint de la musique 🔇" 
         ];
 
         // Références DOM
@@ -174,6 +298,8 @@
 
         function saveGridState(state) {
             try {
+                // IMPORTANT: Utilisation de localStorage, car les environnements sans base de données
+                // ne supportent pas de stockage persistant plus complexe.
                 localStorage.setItem(LOCAL_KEY, JSON.stringify(state));
             } catch (error) {
                 console.error("Erreur lors de la sauvegarde de l'état :", error);
@@ -246,7 +372,7 @@
                 return false;
             }
 
-            // MODIFICATION: Vérifie si TOUTES les cases sont validées
+            // Vérifie si TOUTES les cases sont validées (Bingo Complet)
             const allValidated = gridState.every(cell => cell.validated);
 
             if (allValidated) {
@@ -256,60 +382,6 @@
             
             showWinStatus(false);
             return false;
-
-            /* Ancienne logique (pour référence si besoin de revenir aux lignes/diagonales)
-            // Fonction pour vérifier si une ligne d'indices est gagnante
-            const isWinningLine = (indices) => {
-                return indices.every(index => gridState[index].validated);
-            };
-
-            // 1. Vérification des lignes
-            for (let i = 0; i < GRID_SIZE; i++) {
-                const rowIndices = [];
-                for (let j = 0; j < GRID_SIZE; j++) {
-                    rowIndices.push(i * GRID_SIZE + j);
-                }
-                if (isWinningLine(rowIndices)) {
-                    showWinStatus(true);
-                    return true;
-                }
-            }
-
-            // 2. Vérification des colonnes
-            for (let j = 0; j < GRID_SIZE; j++) {
-                const colIndices = [];
-                for (let i = 0; i < GRID_SIZE; i++) {
-                    colIndices.push(i * GRID_SIZE + j);
-                }
-                if (isWinningLine(colIndices)) {
-                    showWinStatus(true);
-                    return true;
-                }
-            }
-
-            // 3. Vérification de la diagonale principale (haut-gauche à bas-droite)
-            const diag1Indices = [];
-            for (let i = 0; i < GRID_SIZE; i++) {
-                diag1Indices.push(i * GRID_SIZE + i);
-            }
-            if (isWinningLine(diag1Indices)) {
-                showWinStatus(true);
-                return true;
-            }
-
-            // 4. Vérification de la deuxième diagonale (haut-droite à bas-gauche)
-            const diag2Indices = [];
-            for (let i = 0; i < GRID_SIZE; i++) {
-                diag2Indices.push(i * GRID_SIZE + (GRID_SIZE - 1 - i));
-            }
-            if (isWinningLine(diag2Indices)) {
-                showWinStatus(true);
-                return true;
-            }
-
-            showWinStatus(false);
-            return false;
-            */
         }
 
         function showWinStatus(isWon) {
@@ -354,16 +426,15 @@
                     cell.style.fontSize = `${bestSize}px`;
                 });
             }); 
-            // NOTE: J'ai remplacé le setTimeout par requestAnimationFrame pour une meilleure performance
-            // et une meilleure garantie que le layout est stable avant la mesure.
         }
 
         function newGame() {
             const shuffledActions = shuffle([...bingoActions]);
-            // S'assurer qu'on a assez d'actions
+            // S'assurer qu'on a assez d'actions pour la grille 4x4 (16 actions)
             const selectedActions = shuffledActions.slice(0, TOTAL_SQUARES); 
             if (selectedActions.length < TOTAL_SQUARES) {
-                console.error("Pas assez d'actions pour remplir la grille.");
+                console.error("Pas assez d'actions pour remplir la grille. Veuillez en ajouter plus.");
+                alert("Erreur: Pas assez d'actions de Bingo disponibles. Une grille 4x4 requiert 16 actions.");
                 return;
             }
 

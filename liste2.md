@@ -48,7 +48,7 @@
 - Mathilde +1 (Thomas)  
 - Sephora +1 (Clément)  
 - Elena +1 (Jed)  
-- Ethan +1  (Copine Ethan)
+- Ethan +1  (Lycia)
 - Baptiste +1 (Copine Baptiste)
 - Elodie +1 (Amie Elodie)
 - Joachim +1 (Copine Joachim)
@@ -65,7 +65,7 @@
 - Fanny
 - Pam
 - Léa
-- Elodie +1 (Amie Elodie)
+- Joachim
 - Joachim +1 (Copine Joachim)
 
 ---
