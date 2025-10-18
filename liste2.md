@@ -46,8 +46,6 @@
 
 **+ Confirmés avec +1 :**
 - Mathilde +1 (Thomas)  
-- Sephora +1 (Clément)  
-- Elena +1 (Jed)  
 - Ethan +1  (Lycia)
 - Baptiste +1 (Copine Baptiste)
 - Elodie +1 (Amie Elodie)
@@ -76,8 +74,10 @@
 
 ## 🚫 Pas Dispo  
 - Alexandrine  
+- Elena +1 (Jed)  
 - Thomas M  
 - Clemsow 
+- Sephora +1 (Clément)  
 - Camtard  
 - Seb  
 - Nico  
