@@ -50,7 +50,7 @@
 - Mathilde +1 (Thomas)  
 - Ethan +1  (Lycia)
 - Baptiste +1 (Copine Baptiste)
-- Joachim +1 (Copine Joachim)
+- Joachim +1 (Léa)
 
 ---
 
@@ -65,7 +65,7 @@
 - Pam
 - Léa
 - Joachim
-- Joachim +1 (Copine Joachim)
+- Joachim +1 (Léa)
 
 ---
 
