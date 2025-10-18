@@ -44,6 +44,7 @@
 - Hortense
 - Julien  
 - Alexandra
+- Clemsow 
 
 **+ Confirmés avec +1 :**
 - Mathilde +1 (Thomas)  
@@ -76,7 +77,6 @@
 - Alexandrine  
 - Elena +1 (Jed)  
 - Thomas M  
-- Clemsow 
 - Sephora +1 (Clément)  
 - Camtard  
 - Seb  
