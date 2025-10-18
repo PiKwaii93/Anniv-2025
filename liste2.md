@@ -42,6 +42,7 @@
 - Léa
 - Chacon
 - Hortense
+- Julien  
 - Alexandra
 
 **+ Confirmés avec +1 :**
@@ -84,7 +85,6 @@
 - Anaia  
 - Elodie +1 (Amie Elodie)
 - Leo  
-- Julien  
 - Julien +1 (Léa)  
 - Angelina 
 
