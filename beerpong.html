@@ -279,18 +279,16 @@
                 nextPowerOfTwo *= 2;
             }
 
-            // 2. Créer la liste des participants incluant les "byes" (null)
-            const shuffledTeams = [...teams].sort(() => 0.5 - Math.random());
+            // 2. Créer la liste des participants dans l'ordre d'entrée (pas de mélange)
+            // C'est ici que le changement est fait : on utilise teams directement
+            const orderedTeams = [...teams]; 
             const totalMatches = nextPowerOfTwo / 2;
             
             // Ajouter des 'null' (bye) si nécessaire pour arriver à nextPowerOfTwo participants
-            let participants = [...shuffledTeams];
+            let participants = [...orderedTeams];
             for (let i = 0; i < nextPowerOfTwo - numTeams; i++) {
                 participants.push(null); 
             }
-            
-            // Re-mélanger avec les byes pour distribuer équitablement
-            // Cependant, la méthode d'insertion des byes doit être stratégique, pour l'instant on se contente de les mettre à la fin.
             
             // 3. Créer le premier tour
             let currentRound = [];
@@ -490,14 +488,14 @@
                 teamDiv.textContent = team.name;
                 teamDiv.addEventListener('click', () => {
                      setWinner(roundIndex, matchIndex, team);
-                 });
+                   });
             } else {
                 // Style par défaut (équipe en attente)
                 teamDiv.className = `${baseClasses} bg-slate-700 hover:bg-slate-600 border border-slate-600 cursor-pointer text-slate-100`;
                 teamDiv.textContent = team.name;
                 teamDiv.addEventListener('click', () => {
                      setWinner(roundIndex, matchIndex, team);
-                 });
+                   });
             }
 
             return teamDiv;
