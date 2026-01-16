@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jeu de l'Assassin Fanny</title>
+    <title>Bingo Photo - Anniversaire de Fanny</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,413 +11,361 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0f172a; /* Bleu foncé pour un thème de soirée */
+            background-color: #0f172a;
         }
         .reveal-role {
-            animation: fadeIn 0.5s ease-in-out;
+            animation: fadeIn 0.4s ease-out;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .mission-completed-btn {
-            background-color: #22c55e;
-        }
-        /* Style inspiré du killer.html pour les règles */
         .rule-card {
-            background-color: #334155; /* bg-slate-700 */
+            background-color: #334155;
             padding: 1.5rem;
-            border-radius: 0.75rem; /* rounded-xl */
-            border: 1px solid #475569; /* border-slate-600 */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1); /* shadow-lg */
+            border-radius: 0.75rem;
+            border: 1px solid #475569;
+        }
+        .custom-shadow {
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.2);
         }
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center justify-center min-h-screen p-4">
-    <div class="container mx-auto max-w-2xl p-6 bg-slate-800 rounded-3xl shadow-2xl flex flex-col items-center space-y-8">
+    <div class="container mx-auto max-w-2xl p-6 bg-slate-800 rounded-3xl shadow-2xl flex flex-col items-center space-y-8 custom-shadow">
+        <!-- En-tête -->
         <div class="text-center">
-            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-white mb-2">Jeu de l'Assassin Fanny</h1>
-            <p class="text-gray-400 text-lg">Distribuez les missions et éliminez votre cible !</p>
+            <h1 class="text-5xl md:text-6xl font-bold tracking-tight text-pink-500 mb-2">Fanny's Bingo</h1>
+            <p class="text-gray-400 text-lg italic">"Le but ? Remplir l'album photo de Fanny !"</p>
         </div>
 
+        <!-- Section des règles -->
         <section id="rulesSection" class="w-full space-y-4">
-            <button id="toggleRulesBtn" class="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500">
-                Afficher les Règles du Jeu
+            <button id="toggleRulesBtn" class="w-full py-2 px-4 bg-slate-700 hover:bg-slate-600 text-white font-bold rounded-lg transition duration-200 focus:outline-none">
+                Comment jouer ?
             </button>
-            
             <div id="rulesContent" class="rule-card hidden space-y-4">
-                <h2 class="text-2xl font-bold text-purple-400 border-b border-slate-600 pb-2">Règlement Complet</h2>
-
-                <div>
-                    <p class="text-xl font-bold text-red-400 mb-1">🎯 Cible et Mission</p>
-                    <p class="text-sm text-slate-300 ml-4">
-                        Chaque joueur reçoit une **cible** (un autre joueur) et une **mission** secrète à accomplir auprès de cette cible.
-                    </p>
-                </div>
-                <div>
-                    <p class="text-xl font-bold text-green-400 mb-1">🔪 Élimination</p>
-                    <p class="text-sm text-slate-300 ml-4">
-                        Pour **éliminer** votre cible, vous devez réussir la mission qui vous a été attribuée (ex: "Faire un compliment à votre cible."). Une fois réussie, vous appuyez sur **"Mission accomplie"**.
-                    </p>
-                </div>
-                <div>
-                    <p class="text-xl font-bold text-blue-400 mb-1">🔄 Succession</p>
-                    <p class="text-sm text-slate-300 ml-4">
-                        Lorsque vous éliminez votre cible, vous **prenez automatiquement la cible et la mission de votre victime**.
-                    </p>
-                </div>
-
-                <h3 class="text-xl font-bold mt-4 text-yellow-400">Condition de Victoire</h3>
-                <p class="text-sm text-slate-300 ml-4">
-                    Le joueur gagne s'il est le **dernier Assassin Fanny en vie** (tous les autres joueurs ont été éliminés).
-                </p>
+                <h2 class="text-2xl font-bold text-pink-400 border-b border-slate-600 pb-2">Règlement Souvenir</h2>
+                <ul class="list-disc ml-5 text-slate-300 space-y-2 text-sm md:text-base">
+                    <li>Chaque invité reçoit un défi photo secret à réaliser avec <strong>Fanny</strong>.</li>
+                    <li>Dès que la photo est prise (ou si Fanny fait l'action), validez votre mission.</li>
+                    <li>Vous recevrez immédiatement une <strong>nouvelle mission</strong> piochée dans la liste.</li>
+                    <li>Le jeu continue jusqu'à ce que tous les défis soient relevés !</li>
+                    <li>Personne n'est éliminé, on veut juste un max de photos souvenirs.</li>
+                </ul>
             </div>
         </section>
+
+        <!-- Inscription des invités -->
         <div id="add-players-section" class="w-full space-y-4">
-            <h2 class="text-2xl font-bold text-center">Ajouter les joueurs</h2>
+            <h2 class="text-2xl font-bold text-center">Inscrire les invités</h2>
             <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" id="player-name-input" placeholder="Nom du joueur" class="flex-grow p-3 rounded-lg bg-slate-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all">
-                <button id="add-player-btn" class="bg-green-600 hover:bg-green-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+                <input type="text" id="player-name-input" placeholder="Prénom de l'invité" class="flex-grow p-3 rounded-lg bg-slate-700 text-white border border-slate-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-500">
+                <button id="add-player-btn" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-xl shadow-lg transform active:scale-95 transition-all">
                     Ajouter
                 </button>
             </div>
-            <div id="error-message" class="text-red-400 text-center hidden">Veuillez entrer un nom valide.</div>
+            <div id="error-message" class="text-red-400 text-center hidden font-medium"></div>
         </div>
 
+        <!-- Zone de Jeu -->
         <div id="game-section" class="w-full space-y-6 hidden">
-            <h2 class="text-2xl font-bold text-center">Joueurs</h2>
-            <ul id="players-list" class="space-y-2 text-center text-lg"></ul>
-            <div class="flex flex-col md:flex-row justify-center gap-4">
-                <button id="start-game-btn" class="bg-purple-600 hover:bg-purple-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                    Commencer la partie
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <h2 id="list-title" class="text-xl font-bold">Participants</h2>
+                <div id="remaining-missions-badge" class="bg-pink-900/50 border border-pink-500/50 px-3 py-1 rounded-full text-xs font-bold text-pink-300 hidden"></div>
+            </div>
+            
+            <ul id="players-list" class="space-y-2 max-h-64 overflow-y-auto pr-2 custom-scrollbar"></ul>
+            
+            <div class="flex flex-col md:flex-row justify-center gap-4 pt-4">
+                <button id="start-game-btn" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-8 rounded-2xl shadow-xl w-full text-lg uppercase tracking-widest transition-all">
+                    Lancer le Bingo !
                 </button>
-                <button id="reset-game-btn" class="bg-gray-600 hover:bg-gray-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                    Réinitialiser
+                <button id="reset-game-btn" class="bg-slate-700 hover:bg-red-900/50 text-white font-bold py-4 px-6 rounded-2xl transition-all">
+                    Reset
                 </button>
             </div>
         </div>
 
-        <div id="mission-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role z-50">
-            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-lg w-full space-y-6">
-                <h2 class="text-4xl font-bold">Votre Mission</h2>
-                <div class="flex flex-col space-y-4">
-                    <p class="text-lg text-gray-400">Votre cible est :</p>
-                    <p id="player-target" class="text-5xl font-black text-red-500"></p>
-                    <p class="text-lg text-gray-400">Votre mission est de :</p>
-                    <p id="player-mission" class="text-2xl font-semibold text-white"></p>
+        <!-- Fenêtre de Mission (Modal) -->
+        <div id="mission-modal" class="fixed inset-0 bg-slate-900/95 flex items-center justify-center hidden p-4 reveal-role z-50">
+            <div class="bg-slate-800 p-8 rounded-3xl shadow-2xl text-center max-w-lg w-full space-y-6 border border-pink-500/30">
+                <div class="flex justify-center">
+                    <span class="text-6xl">📸</span>
                 </div>
-                <div class="flex flex-col md:flex-row justify-center gap-4 mt-6">
-                    <button id="hide-mission-btn" class="bg-gray-600 hover:bg-gray-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                        Cacher
+                <h2 class="text-3xl font-bold text-pink-400">Mission Photo</h2>
+                <div class="flex flex-col space-y-4">
+                    <p class="text-gray-400">Prenez une photo de Fanny :</p>
+                    <p id="player-mission" class="text-2xl font-semibold text-white bg-slate-700/50 p-6 rounded-2xl border-2 border-dashed border-pink-500/30 italic"></p>
+                </div>
+                <div class="flex flex-col md:flex-row justify-center gap-4 mt-8">
+                    <button id="hide-mission-btn" class="bg-slate-700 hover:bg-slate-600 text-white font-bold py-4 px-6 rounded-xl w-full">
+                        Plus tard
                     </button>
-                    <button id="complete-mission-btn" class="mission-completed-btn hover:bg-green-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
-                        Mission accomplie !
+                    <button id="complete-mission-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg w-full transform active:scale-95">
+                        Photo faite ! ✅
                     </button>
                 </div>
             </div>
         </div>
         
-        <div id="win-modal" class="fixed inset-0 bg-slate-900 bg-opacity-95 flex items-center justify-center hidden p-4 reveal-role z-50">
-            <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl text-center max-w-sm w-full space-y-6">
-                <h2 class="text-4xl font-bold text-green-500">VICTOIRE !</h2>
-                <p id="winner-name" class="text-6xl font-black text-white"></p>
-                <p class="text-lg text-gray-400">est le dernier Assassin Fanny en vie !</p>
-                <button id="new-game-btn" class="bg-blue-600 hover:bg-blue-700 transition-all text-white font-bold py-3 px-6 rounded-xl shadow-lg transform hover:scale-105">
+        <!-- Fenêtre Fin de Partie -->
+        <div id="win-modal" class="fixed inset-0 bg-slate-900/95 flex items-center justify-center hidden p-4 reveal-role z-50">
+            <div class="bg-slate-800 p-8 rounded-3xl shadow-2xl text-center max-w-sm w-full space-y-6 border-2 border-pink-500">
+                <h2 class="text-3xl font-bold text-pink-500 uppercase tracking-tighter">Album Complet !</h2>
+                <p class="text-lg text-gray-300">Toutes les missions photos ont été accomplies. Fanny va être ravie !</p>
+                <div id="final-scores" class="text-left space-y-2 text-sm bg-slate-700 p-4 rounded-xl max-h-48 overflow-y-auto"></div>
+                <button id="new-game-btn" class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-4 px-6 rounded-xl w-full uppercase">
                     Nouvelle partie
                 </button>
             </div>
         </div>
     </div>
-    <footer class="mt-16 text-center text-sm text-pink-400 font-medium">
-        <a href="index.html" class="mt-10 px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50 inline-flex items-center justify-center">
-            <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
-        </a>
-    </footer>
 
     <script>
-        // Liste des missions centrées sur Fanny (Anniversaire à son appart)
+        // Liste des actions à réaliser (Cible : Fanny)
         const bingoActions = [
-    "📸 Capturer Fanny en plein fou rire.",
-    "📸 Immortaliser Fanny en train de lever son verre.",
-    "📸 Photographier Fanny au milieu d’une discussion animée.",
-    "📸 Prendre un cliché de Fanny en pleine danse.",
-    "📸 Surprendre Fanny pendant qu’elle fait un selfie.",
-    "📸 Photographier Fanny en train de grignoter quelque chose.",
-    "📸 Immortaliser Fanny juste avant ou juste après un shot.",
-    "📸 Capturer Fanny en train de chanter sur la musique.",
-    "📸 Prendre Fanny sur le fait : une grimace assumée.",
-    "📸 Photographier Fanny pendant un câlin.",
-    "📸 Capturer Fanny en train d’applaudir.",
-    "📸 Prendre Fanny en photo concentrée sur son téléphone.",
-    "📸 Immortaliser Fanny avec un air très sérieux.",
-    "📸 Photographier Fanny pendant qu’on la prend déjà en photo.",
-    "📸 Capturer Fanny les bras levés.",
-    "📸 Immortaliser un moment où Fanny trinque.",
-    "📸 Photographier Fanny en train de saluer quelqu’un.",
-    "📸 Capturer un sourire de Fanny face à l’objectif.",
-    "📸 Prendre Fanny en photo alors qu’elle regarde ailleurs.",
-    "📸 Photographier Fanny en train de danser avec quelqu’un.",
-    "📸 Capturer Fanny tenant un objet improbable.",
-    "📸 Prendre Fanny en photo au moment où elle s’assoit ou se lève.",
-    "📸 Immortaliser Fanny en train de rire avec quelqu’un.",
-    "📸 Photographier un geste totalement exagéré de Fanny.",
-    "📸 Capturer Fanny en pleine discussion avec les mains.",
-    "📸 Prendre Fanny en photo dans une pose stylée.",
-    "📸 Photographier Fanny regardant une photo ou une vidéo.",
-    "📸 Capturer Fanny en plein moment festif.",
-    "📸 Immortaliser la tête surprise de Fanny.",
-    "📸 Immortaliser Fanny avec une jambe levée au-dessus de sa tête.",
-    "📸 Capturer Fanny en équilibre sur une jambe, façon flamant rose.",
-    "📸 Photographier Fanny en train de tenter une pose corporelle totalement improbable."
-];
+            "📸 En plein fou rire.",
+            "📸 En train de lever son verre.",
+            "📸 Au milieu d’une discussion animée.",
+            "📸 En pleine danse.",
+            "📸 En train de faire un selfie.",
+            "📸 En train de grignoter quelque chose.",
+            "📸 Juste avant ou juste après un shot.",
+            "📸 En train de chanter sur la musique.",
+            "📸 Avec une grimace assumée.",
+            "📸 Pendant un câlin.",
+            "📸 En train d’applaudir.",
+            "📸 Concentrée sur son téléphone.",
+            "📸 Avec un air très sérieux.",
+            "📸 Pendant qu’on la prend déjà en photo.",
+            "📸 Les bras levés.",
+            "📸 En train de trinquer.",
+            "📸 En train de saluer quelqu’un.",
+            "📸 Un beau sourire face à l’objectif.",
+            "📸 Alors qu’elle regarde ailleurs.",
+            "📸 En train de danser avec quelqu’un.",
+            "📸 Tenant un objet improbable.",
+            "📸 Au moment où elle s’assoit ou se lève.",
+            "📸 En train de rire avec quelqu’un.",
+            "📸 Un geste totalement exagéré.",
+            "📸 En pleine discussion avec les mains.",
+            "📸 Dans une pose stylée.",
+            "📸 Regardant une photo ou une vidéo.",
+            "📸 En plein moment festif.",
+            "📸 Avec une tête surprise.",
+            "📸 Avec une jambe levée au-dessus de sa tête.",
+            "📸 En équilibre sur une jambe (flamant rose).",
+            "📸 Dans une pose corporelle improbable."
+        ];
 
-
-
-        // Références aux éléments du DOM
-        const playerNameInput = document.getElementById('player-name-input');
-        const addPlayerBtn = document.getElementById('add-player-btn');
-        const playersList = document.getElementById('players-list');
-        const startGameBtn = document.getElementById('start-game-btn');
-        const resetGameBtn = document.getElementById('reset-game-btn');
-        const addPlayersSection = document.getElementById('add-players-section');
-        const gameSection = document.getElementById('game-section');
-        const missionModal = document.getElementById('mission-modal');
-        const playerTargetDisplay = document.getElementById('player-target');
-        const playerMissionDisplay = document.getElementById('player-mission');
-        const hideMissionBtn = document.getElementById('hide-mission-btn');
-        const completeMissionBtn = document.getElementById('complete-mission-btn');
-        const winModal = document.getElementById('win-modal');
-        const winnerNameDisplay = document.getElementById('winner-name');
-        const newGameBtn = document.getElementById('new-game-btn');
-        const errorMessage = document.getElementById('error-message');
-        const rulesContent = document.getElementById('rulesContent'); // Ajout de l'élément des règles
-        const toggleRulesBtn = document.getElementById('toggleRulesBtn'); // Ajout du bouton bascule
-
-        // Constantes et état
-        const LOCAL_STORAGE_KEY = 'assassin_fanny_game_state';
+        const LOCAL_STORAGE_KEY = 'bingo_fanny_anniv_v1';
         let players = [];
+        let availableMissions = [];
         let gameStarted = false;
-        let currentPlayerIndex = -1;
 
-        /**
-         * Sauvegarde l'état du jeu dans le localStorage.
-         */
+        // Persistance des données
         function saveGameState() {
-            try {
-                const gameState = { players, gameStarted };
-                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(gameState));
-            } catch (e) {
-                console.error("Erreur lors de la sauvegarde dans le localStorage", e);
-            }
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({ players, gameStarted, availableMissions }));
         }
 
-        /**
-         * Charge l'état du jeu depuis le localStorage.
-         */
         function loadGameState() {
-            try {
-                const storedState = localStorage.getItem(LOCAL_STORAGE_KEY);
-                if (storedState) {
-                    const gameState = JSON.parse(storedState);
-                    players = gameState.players || [];
-                    gameStarted = gameState.gameStarted || false;
-                }
-            } catch (e) {
-                console.error("Erreur lors du chargement depuis le localStorage", e);
+            const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (stored) {
+                const state = JSON.parse(stored);
+                players = state.players || [];
+                gameStarted = state.gameStarted || false;
+                availableMissions = state.availableMissions || [];
             }
         }
 
-        /**
-         * Met à jour l'affichage de la liste des joueurs.
-         */
+        // Interface
         function renderPlayers() {
+            const playersList = document.getElementById('players-list');
             playersList.innerHTML = '';
+            
             if (players.length > 0) {
-                gameSection.classList.remove('hidden');
+                document.getElementById('game-section').classList.remove('hidden');
             } else {
-                gameSection.classList.add('hidden');
+                document.getElementById('game-section').classList.add('hidden');
             }
 
-            // Filtrer les joueurs pour n'afficher que ceux qui ne sont pas éliminés
-            const activePlayers = players.filter(player => !player.eliminated);
-            
-            activePlayers.forEach((player, index) => {
+            players.forEach((player) => {
                 const li = document.createElement('li');
-                li.className = "flex justify-between items-center bg-slate-700 p-3 rounded-lg shadow-md";
+                li.className = "flex justify-between items-center bg-slate-700/50 p-4 rounded-xl shadow-sm border border-slate-600 mb-2 transition-all";
                 
-                const playerNameSpan = document.createElement('span');
-                playerNameSpan.textContent = player.name;
-                li.appendChild(playerNameSpan);
+                const nameContainer = document.createElement('div');
+                nameContainer.className = "flex flex-col";
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.className = "font-bold text-white text-lg";
+                nameSpan.textContent = player.name;
+                
+                const scoreSpan = document.createElement('span');
+                scoreSpan.className = "text-xs text-pink-400 font-bold uppercase tracking-wide";
+                scoreSpan.textContent = `Photos validées : ${player.score || 0}`;
+                
+                nameContainer.appendChild(nameSpan);
+                nameContainer.appendChild(scoreSpan);
+                li.appendChild(nameContainer);
 
                 if (!gameStarted) {
                     const removeBtn = document.createElement('button');
-                    removeBtn.textContent = '❌';
-                    removeBtn.className = "ml-4 p-1 rounded-full text-gray-400 hover:text-red-500 transition-colors";
-                    removeBtn.addEventListener('click', () => removePlayer(index));
+                    removeBtn.innerHTML = '✕';
+                    removeBtn.className = "text-slate-500 hover:text-red-400 font-bold p-2 transition-colors";
+                    removeBtn.onclick = () => {
+                        players = players.filter(p => p.name !== player.name);
+                        renderPlayers();
+                        saveGameState();
+                    };
                     li.appendChild(removeBtn);
                 } else {
-                    li.classList.add('cursor-pointer', 'hover:bg-slate-600', 'transition-colors');
-                    // Trouver l'index original du joueur dans le tableau complet pour le révéler
-                    const originalIndex = players.findIndex(p => p.name === player.name);
-                    li.addEventListener('click', () => revealMission(originalIndex));
+                    li.classList.add('cursor-pointer', 'hover:bg-slate-600', 'hover:border-pink-500/50');
+                    const revealBtn = document.createElement('span');
+                    revealBtn.textContent = "VOIR MISSION 👁️";
+                    revealBtn.className = "text-[10px] bg-pink-500 text-white px-2 py-1 rounded font-black";
+                    li.appendChild(revealBtn);
+                    li.onclick = () => revealMission(player.name);
                 }
-                
                 playersList.appendChild(li);
             });
-        }
 
-        /**
-         * Ajoute un nouveau joueur.
-         */
-        function addPlayer() {
-            const name = playerNameInput.value.trim();
-            if (name && !players.find(p => p.name.toLowerCase() === name.toLowerCase())) {
-                players.push({ name: name, target: null, mission: null, eliminated: false });
-                playerNameInput.value = '';
-                errorMessage.classList.add('hidden');
-                renderPlayers();
-                saveGameState();
-            } else {
-                errorMessage.classList.remove('hidden');
+            // Affichage du stock de missions
+            const badge = document.getElementById('remaining-missions-badge');
+            if (gameStarted) {
+                badge.classList.remove('hidden');
+                badge.textContent = `${availableMissions.length} missions en stock`;
             }
         }
 
-        /**
-         * Supprime un joueur.
-         * @param {number} index L'index du joueur à supprimer.
-         */
-        function removePlayer(index) {
-            players.splice(index, 1);
+        // Logique de Jeu
+        function handleGameStart() {
+            if (players.length < 1) {
+                showError("Veuillez ajouter au moins un invité !");
+                return;
+            }
+            
+            // Préparer la pile de missions mélangée
+            availableMissions = [...bingoActions].sort(() => Math.random() - 0.5);
+            
+            // Attribuer la première mission à tout le monde
+            players.forEach(p => {
+                p.score = 0;
+                p.mission = availableMissions.pop() || "Toutes les missions sont finies !";
+            });
+
+            gameStarted = true;
+            document.getElementById('add-players-section').classList.add('hidden');
+            document.getElementById('start-game-btn').classList.add('hidden');
             renderPlayers();
             saveGameState();
         }
 
-        /**
-         * Distribue les cibles et les missions.
-         */
-        function assignMissions() {
-            const activePlayers = players.filter(p => !p.eliminated);
-            if (activePlayers.length < 2) {
-                alert("Il faut au moins 2 joueurs pour commencer !");
-                return;
-            }
+        function revealMission(name) {
+            const player = players.find(p => p.name === name);
+            if (!player) return;
 
-            const shuffledPlayers = [...activePlayers].sort(() => Math.random() - 0.5);
-            const shuffledMissions = [...missions].sort(() => Math.random() - 0.5);
+            document.getElementById('player-mission').textContent = player.mission;
+            document.getElementById('complete-mission-btn').dataset.user = name;
+            document.getElementById('mission-modal').classList.remove('hidden');
+        }
 
-            for (let i = 0; i < shuffledPlayers.length; i++) {
-                const current = shuffledPlayers[i];
-                const target = shuffledPlayers[(i + 1) % shuffledPlayers.length];
+        function completeMission() {
+            const name = document.getElementById('complete-mission-btn').dataset.user;
+            const player = players.find(p => p.name === name);
+            
+            player.score = (player.score || 0) + 1;
+            
+            // On vérifie s'il reste des missions dans la pioche
+            if (availableMissions.length > 0) {
+                player.mission = availableMissions.pop();
+                document.getElementById('mission-modal').classList.add('hidden');
+            } else {
+                // Si la pioche est vide, ce joueur a fini
+                player.mission = "Plus de missions disponibles ! 🎉";
+                document.getElementById('mission-modal').classList.add('hidden');
                 
-                // Mettre à jour l'objet joueur original
-                const playerToUpdate = players.find(p => p.name === current.name);
-                if (playerToUpdate) {
-                    playerToUpdate.target = target.name;
-                    playerToUpdate.mission = shuffledMissions[i % shuffledMissions.length];
+                // Si tout le monde a terminé ses missions
+                const stillPlaying = players.find(p => p.mission !== "Plus de missions disponibles ! 🎉");
+                if (!stillPlaying) {
+                    showEndGame();
                 }
             }
             
-            gameStarted = true;
-            addPlayersSection.classList.add('hidden');
-            startGameBtn.classList.add('hidden');
             renderPlayers();
+            saveGameState();
+            
+            // Vérifier si toutes les missions globales ont été attribuées et réussies
+            const totalScore = players.reduce((sum, p) => sum + p.score, 0);
+            if (totalScore >= bingoActions.length) {
+                showEndGame();
+            }
+        }
+
+        function showEndGame() {
+            const scoresDiv = document.getElementById('final-scores');
+            scoresDiv.innerHTML = '<strong class="text-pink-400">Palmarès des photographes :</strong><br><br>';
+            
+            const sorted = [...players].sort((a,b) => b.score - a.score);
+            sorted.forEach(p => {
+                scoresDiv.innerHTML += `<div class="flex justify-between border-b border-slate-600 py-1"><span>${p.name}</span> <span class="font-bold text-pink-400">${p.score} photos</span></div>`;
+            });
+            
+            document.getElementById('win-modal').classList.remove('hidden');
             saveGameState();
         }
 
-        /**
-         * Affiche la mission et la cible d'un joueur dans une modale.
-         * @param {number} index L'index du joueur.
-         */
-        function revealMission(index) {
-            currentPlayerIndex = index;
-            const player = players[currentPlayerIndex];
-
-            playerTargetDisplay.textContent = player.target;
-            playerMissionDisplay.textContent = player.mission;
-            
-            missionModal.classList.remove('hidden');
-            completeMissionBtn.dataset.playerIndex = index;
+        function showError(msg) {
+            const err = document.getElementById('error-message');
+            err.textContent = msg;
+            err.classList.remove('hidden');
+            setTimeout(() => err.classList.add('hidden'), 3000);
         }
 
-        /**
-         * Gère la complétion d'une mission.
-         */
-        function completeMission() {
-            const playerIndex = parseInt(completeMissionBtn.dataset.playerIndex, 10);
-            const player = players[playerIndex];
-            
-            const eliminatedPlayer = players.find(p => p.name === player.target);
-            if (eliminatedPlayer) {
-                eliminatedPlayer.eliminated = true;
-                
-                // Le joueur qui vient de tuer prend la cible et la mission de sa victime
-                player.target = eliminatedPlayer.target;
-                player.mission = eliminatedPlayer.mission;
-            }
-
-            missionModal.classList.add('hidden');
-            
-            const remainingPlayers = players.filter(p => !p.eliminated);
-            if (remainingPlayers.length === 1) {
-                const winner = remainingPlayers[0];
-                winnerNameDisplay.textContent = winner.name;
-                winModal.classList.remove('hidden');
-            } else {
+        // Événements boutons
+        document.getElementById('add-player-btn').onclick = () => {
+            const input = document.getElementById('player-name-input');
+            const val = input.value.trim();
+            if (val) {
+                if (players.find(p => p.name.toLowerCase() === val.toLowerCase())) {
+                    showError("Cet invité est déjà inscrit !");
+                    return;
+                }
+                players.push({ name: val, score: 0, mission: null });
+                input.value = '';
                 renderPlayers();
                 saveGameState();
             }
-        }
+        };
+
+        document.getElementById('start-game-btn').onclick = handleGameStart;
+        document.getElementById('hide-mission-btn').onclick = () => document.getElementById('mission-modal').classList.add('hidden');
+        document.getElementById('complete-mission-btn').onclick = completeMission;
         
-        /**
-         * Gère le bouton pour commencer la partie.
-         */
-        function handleGameStart() {
-            if (players.length > 1) {
-                assignMissions();
-            } else {
-                // Utilisation d'une modale ou d'un message visible au lieu d'alert()
-                errorMessage.textContent = "Ajoutez au moins deux joueurs pour commencer.";
-                errorMessage.classList.remove('hidden');
-                setTimeout(() => errorMessage.classList.add('hidden'), 3000);
+        document.getElementById('reset-game-btn').onclick = () => {
+            if(confirm("Voulez-vous réinitialiser le jeu ? Les scores seront perdus.")) {
+                localStorage.removeItem(LOCAL_STORAGE_KEY);
+                window.location.reload();
             }
-        }
-        
-        /**
-         * Réinitialise le jeu.
-         */
-        function resetGame() {
+        };
+
+        document.getElementById('new-game-btn').onclick = () => {
             localStorage.removeItem(LOCAL_STORAGE_KEY);
             window.location.reload();
-        }
+        };
 
-        // Événements
-        addPlayerBtn.addEventListener('click', addPlayer);
-        playerNameInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                addPlayer();
-            }
-        });
-        startGameBtn.addEventListener('click', handleGameStart);
-        resetGameBtn.addEventListener('click', resetGame);
-        hideMissionBtn.addEventListener('click', () => {
-            missionModal.classList.add('hidden');
-        });
-        completeMissionBtn.addEventListener('click', completeMission);
-        newGameBtn.addEventListener('click', resetGame);
+        document.getElementById('toggleRulesBtn').onclick = () => {
+            const content = document.getElementById('rulesContent');
+            const isHidden = content.classList.toggle('hidden');
+            document.getElementById('toggleRulesBtn').textContent = isHidden ? 'Comment jouer ?' : 'Masquer les règles';
+        };
 
-        // Toggle des règles (ajouté)
-        toggleRulesBtn.addEventListener('click', () => {
-            const isHidden = rulesContent.classList.toggle('hidden');
-            toggleRulesBtn.textContent = isHidden ? 'Afficher les Règles du Jeu' : 'Masquer les Règles du Jeu';
-        });
-
-        // Initialisation
-        window.onload = function() {
+        // Chargement initial
+        window.onload = () => {
             loadGameState();
             if (gameStarted) {
-                addPlayersSection.classList.add('hidden');
-                gameSection.classList.remove('hidden');
-                startGameBtn.classList.add('hidden');
+                document.getElementById('add-players-section').classList.add('hidden');
+                document.getElementById('start-game-btn').classList.add('hidden');
             }
             renderPlayers();
         };
