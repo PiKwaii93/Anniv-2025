@@ -3,128 +3,139 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Accueil des Jeux de Soirée</title>
+    <title>Party App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         body { 
             font-family: 'Inter', sans-serif; 
             background-color: #0f172a; 
+            -webkit-font-smoothing: antialiased;
         }
 
+        /* La classe maîtresse pour l'alignement vertical */
         .game-card {
-            @apply p-6 bg-slate-800 rounded-2xl shadow-xl transition-all duration-300 
-                   flex flex-col items-center text-center space-y-3 border border-transparent 
-                   cursor-pointer h-full;
+            @apply p-6 bg-slate-800 rounded-3xl shadow-xl transition-all duration-300 
+                   flex flex-col items-center text-center border border-transparent 
+                   cursor-pointer h-full justify-start;
         }
 
         .game-card:hover {
-            transform: scale(1.05);
+            transform: translateY(-8px);
             background-color: rgb(51, 65, 85);
-            border-color: rgb(59, 130, 246); /* Bleu par défaut */
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+            border-color: rgb(59, 130, 246);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
         }
 
-        /* Style spécial pour les cartes de Fanny */
-        .fanny-card {
-            @apply border-pink-500/30 bg-gradient-to-b from-slate-800 to-pink-900/10;
-        }
+        /* Couleurs spécifiques au survol pour les nouveaux jeux */
+        .fanny-card:hover { border-color: #ec4893; box-shadow: 0 10px 25px -5px rgba(236, 72, 153, 0.4); }
+        .icebreaker-card:hover { border-color: #8b5cf6; box-shadow: 0 10px 25px -5px rgba(139, 92, 246, 0.4); }
+        .roulette-card:hover { border-color: #ef4444; box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.4); }
 
-        .fanny-card:hover {
-            border-color: rgb(236, 72, 153); /* pink-500 */
-            box-shadow: 0 0 25px rgba(236, 72, 153, 0.5);
+        .fanny-gradient {
+            @apply bg-gradient-to-b from-slate-800 to-pink-900/20 border-pink-500/20;
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white min-h-screen p-4 md:p-8 flex flex-col items-center">
+<body class="bg-slate-900 text-white min-h-screen p-6 flex flex-col items-center">
     
-    <header class="text-center mb-12 mt-6 max-w-4xl w-full">
-        <h1 class="text-5xl md:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-600">
-            🎉 La Soirée de Fanny 🎉
+    <header class="text-center mb-16 mt-8 w-full">
+        <h1 class="px-4 text-6xl md:text-8xl font-black tracking-tight uppercase text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-300 to-slate-500 leading-none">
+            Party App
         </h1>
-        <p class="mt-4 text-lg text-slate-400 font-medium">
-            Choisissez une activité pour animer l'anniversaire !
+        <p class="text-blue-500 font-bold tracking-[0.2em] uppercase text-xs mt-4 opacity-80">
+            Entertainment System // v2.0
         </p>
     </header>
 
-    <main class="max-w-7xl w-full space-y-12">
+    <main class="max-w-5xl w-full space-y-16">
         
+        <!-- SECTION FANNY -->
         <section>
-            <div class="flex items-center space-x-4 mb-6">
-                <h2 class="text-2xl font-bold text-pink-500 uppercase tracking-widest">🎂 Spécial Fanny</h2>
-                <div class="h-px bg-pink-500/30 flex-grow"></div>
+            <div class="flex items-center space-x-4 mb-8">
+                <h2 class="text-lg font-black uppercase tracking-widest text-pink-500 italic">01. Fanny Edition</h2>
+                <div class="h-px bg-pink-500/20 flex-grow"></div>
             </div>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
-                <a href="assassin_fanny.html" class="game-card fanny-card">
-                    <span class="text-5xl">🎯</span>
-                    <h2 class="text-xl font-bold text-pink-400">L'Assassin de Fanny</h2>
-                    <p class="text-slate-400 text-sm">Réussissez vos missions secrètes sur la star de la soirée sans vous faire griller.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <a href="assassin_fanny.html" class="game-card fanny-card fanny-gradient">
+                    <span class="text-5xl mb-3">🎯</span>
+                    <h2 class="text-xl font-black text-pink-400 uppercase tracking-tight">Assassin Fanny</h2>
+                    <p class="text-slate-400 text-sm mt-1">Missions secrètes sur la star du soir.</p>
                 </a>
 
-                <a href="bingo_fanny.html" class="game-card fanny-card">
-                    <span class="text-5xl">🌸</span>
-                    <h2 class="text-xl font-bold text-pink-400">Bingo Spécial Fanny</h2>
-                    <p class="text-slate-400 text-sm">Cochez les cases dès que Fanny dit ou fait quelque chose de typique.</p>
+                <a href="bingo_fanny.html" class="game-card fanny-card fanny-gradient">
+                    <span class="text-5xl mb-3">🌸</span>
+                    <h2 class="text-xl font-black text-pink-400 uppercase tracking-tight">Bingo Fanny</h2>
+                    <p class="text-slate-400 text-sm mt-1">Cochez ses meilleures punchlines.</p>
                 </a>
             </div>
         </section>
 
+        <!-- SECTION GENERAL -->
         <section>
-            <div class="flex items-center space-x-4 mb-6">
-                <h2 class="text-2xl font-bold text-blue-400 uppercase tracking-widest">🎮 Autres Jeux</h2>
-                <div class="h-px bg-blue-500/30 flex-grow"></div>
+            <div class="flex items-center space-x-4 mb-8">
+                <h2 class="text-lg font-black uppercase tracking-widest text-blue-500 italic">02. Général</h2>
+                <div class="h-px bg-blue-500/20 flex-grow"></div>
             </div>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <a href="iceberg_custom.html" class="game-card icebreaker-card">
+                    <span class="text-5xl mb-3">🧊</span>
+                    <h2 class="text-xl font-black uppercase tracking-tight text-white">Icebreaker</h2>
+                    <p class="text-slate-400 text-sm mt-1">60 questions sans aucun filtre.</p>
+                </a>
+
+                <a href="roulette.html" class="game-card roulette-card">
+                    <span class="text-5xl mb-3">🔥</span>
+                    <h2 class="text-xl font-black uppercase tracking-tight text-white">Shot Roulette</h2>
+                    <p class="text-slate-400 text-sm mt-1">Le hasard décide de votre destin.</p>
+                </a>
+
                 <a href="assassin.html" class="game-card">
-                    <span class="text-5xl">🔪</span>
-                    <h2 class="text-xl font-bold text-white">Assassin Classique</h2>
-                    <p class="text-slate-400 text-sm">Chaque joueur a une cible et une mission différente.</p>
+                    <span class="text-4xl mb-3">🔪</span>
+                    <h2 class="text-lg font-bold text-white">Assassin</h2>
+                    <p class="text-slate-400 text-xs mt-1">Missions secrètes entre invités.</p>
                 </a>
 
                 <a href="killer.html" class="game-card">
-                    <span class="text-5xl">🐺</span>
-                    <h2 class="text-xl font-bold text-white">Le Killer</h2>
-                    <p class="text-slate-400 text-sm">Rôles cachés : clin d'oeil fatal contre enquête policière.</p>
+                    <span class="text-4xl mb-3">🐺</span>
+                    <h2 class="text-lg font-bold text-white">Le Killer</h2>
+                    <p class="text-slate-400 text-xs mt-1">Rôles cachés et enquête policière.</p>
                 </a>
 
                 <a href="beerpong.html" class="game-card">
-                    <span class="text-5xl">🍻</span>
-                    <h2 class="text-xl font-bold text-white">BeerPong</h2>
-                    <p class="text-slate-400 text-sm">Gestion du tournoi et suivi des scores en direct.</p>
+                    <span class="text-4xl mb-3">🍻</span>
+                    <h2 class="text-lg font-bold text-white">BeerPong</h2>
+                    <p class="text-slate-400 text-xs mt-1">Gestion du tournoi & Scores.</p>
                 </a>
 
                 <a href="bingo.html" class="game-card">
-                    <span class="text-5xl">✅</span>
-                    <h2 class="text-xl font-bold text-white">Bingo Soirée</h2>
-                    <p class="text-slate-400 text-sm">Le bingo classique pour les événements entre amis.</p>
+                    <span class="text-4xl mb-3">✅</span>
+                    <h2 class="text-lg font-bold text-white">Bingo</h2>
+                    <p class="text-slate-400 text-xs mt-1">Cochez les dossiers de la soirée.</p>
                 </a>
 
                 <a href="iceberg.html" class="game-card">
-                    <span class="text-5xl">❄️</span>
-                    <h2 class="text-xl font-bold text-white">L'Iceberg</h2>
-                    <p class="text-slate-400 text-sm">Toutes les références de la soirée classées par niveau.</p>
+                    <span class="text-4xl mb-3">❄️</span>
+                    <h2 class="text-lg font-bold text-white">L'Iceberg</h2>
+                    <p class="text-slate-400 text-xs mt-1">Les références cultes de la bande.</p>
                 </a>
 
                 <a href="invites.html" class="game-card">
-                    <span class="text-5xl">🧑‍🤝‍🧑</span>
-                    <h2 class="text-xl font-bold text-white">Invités</h2>
-                    <p class="text-slate-400 text-sm">Gestion de la liste des participants.</p>
-                </a>
-                
-                <a href="regles.html" class="game-card">
-                    <span class="text-5xl">📜</span>
-                    <h2 class="text-xl font-bold text-white">Règles</h2>
-                    <p class="text-slate-400 text-sm">Les principes de base de la soirée.</p>
+                    <span class="text-4xl mb-3">👥</span>
+                    <h2 class="text-lg font-bold text-white">Invités</h2>
+                    <p class="text-slate-400 text-xs mt-1">Gestion de la liste des participants.</p>
                 </a>
             </div>
         </section>
 
     </main>
     
-    <footer class="mt-16 text-center text-sm text-pink-400 font-medium pb-8">
-        <p>✨ Passez une merveilleuse soirée en compagnie de <span class="font-bold text-pink-500">Fanny & Maxence</span> ✨</p>
+    <footer class="mt-24 text-center text-[10px] text-slate-600 uppercase tracking-[0.4em] pb-12">
+        Saturday Night System // Saturday Night System
     </footer>
 
 </body>

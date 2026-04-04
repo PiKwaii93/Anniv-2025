@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Icebreaker 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen flex flex-col items-center justify-center p-6 text-center">
+    <div class="max-w-lg w-full bg-slate-800 rounded-3xl p-8 shadow-2xl border border-slate-700 space-y-8">
+        <h1 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-pink-500">
+            🧊 Icebreaker 2.0
+        </h1>
+        
+        <div class="min-h-[140px] flex items-center justify-center bg-slate-900/50 rounded-2xl p-6 border border-slate-700/50">
+            <p id="question" class="text-xl font-medium leading-relaxed italic text-slate-200">
+                "Prêt à briser la glace ?"
+            </p>
+        </div>
+
+        <button onclick="nextQuestion()" class="w-full py-4 bg-violet-600 hover:bg-violet-700 rounded-2xl font-bold text-lg transition-all active:scale-95 shadow-lg shadow-violet-900/30">
+            Question suivante ➔
+        </button>
+
+        <div class="pt-4">
+            <a href="index.html" class="text-slate-500 hover:text-white text-sm transition underline decoration-slate-700">Retour au menu</a>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            // --- LES CLASSIQUES (1 à 10) ---
+            "C’est quoi ton pire 'red flag' chez quelqu’un ?",
+            "Ta plus grosse honte en soirée (raconte tout) ?",
+            "C'est quoi la première chose que tu as remarquée chez moi ?",
+            "Plutôt un date incroyable à 2h du mat ou un brunch parfait à midi ?",
+            "Si tu devais choisir une seule personne ici pour survivre à une apocalypse ?",
+            "Quelle est la pire excuse que tu as sortie pour esquiver un date ?",
+            "Si tu pouvais lire dans les pensées de quelqu'un ce soir, ce serait qui ?",
+            "Quelle est la chanson que tu écoutes en cachette ?",
+            "Ton plus grand talent inutile ?",
+            "C’est quoi la dernière recherche 'honteuse' dans ton historique Google ?",
+
+            // --- PERSONNELS & INTIMES (11 à 25) ---
+            "Quel est le fantasme que tu as, mais dont tu as trop honte pour le réaliser ?",
+            "Quel est le plus gros mensonge que tu aies jamais dit pour conclure ?",
+            "C’est quoi ton pire souvenir sexuel (la situation la plus gênante) ?",
+            "Si tu devais faire un classement sexuel de tes conquêtes, tu serais à quelle place ?",
+            "Si tu pouvais effacer une seule personne de ton passé amoureux, ce serait qui ?",
+            "Quelle est la chose la plus dégoûtante que tu as acceptée par désir ?",
+            "Quel est ton plus grand échec amoureux dont tu ne parles à personne ?",
+            "Quel est le trait de caractère le plus insupportable que tu caches ?",
+            "Quel est le souvenir d'enfance le plus traumatisant dont tu ris aujourd'hui ?",
+            "T'as déjà simulé ? Si oui, pourquoi ?",
+            "C'est quoi l'endroit le plus insolite où tu l'as fait ?",
+            "Quelle est la plus grande différence d'âge que tu as acceptée pour un plan d'un soir ?",
+            "Tu préfères être surpris en train de le faire ou surprendre tes parents ?",
+            "C’est quoi ton 'type' de mec/meilleur, mais qui est en fait toxique pour toi ?",
+            "Quelle est la partie de ton corps que tu préfères montrer quand tu veux séduire ?",
+
+            // --- CASSANTS & SOCIAUX (26 à 40) ---
+            "Quelle personne ici tu éviterais absolument si tu la croisais dans la rue sans la connaître ?",
+            "Quel est le pire truc que tu as dit à quelqu'un en pleine face pendant un date ?",
+            "Quelle personne ici tu verrais bien dans ton lit ce soir, et pourquoi ?",
+            "Quelle personne ici tu penses être la plus susceptible de tromper son partenaire ?",
+            "Qui dans cette pièce a le look le plus 'has-been' ?",
+            "Si tu devais éliminer une personne de ce groupe pour toujours, ce serait qui ?",
+            "Qui ici te semble le plus 'fake' sur les réseaux sociaux ?",
+            "Qui a le moins de chances de réussir sa vie selon toi dans cette pièce ?",
+            "Si tu devais donner un prix de la personne la plus ennuyeuse ici, à qui irait-il ?",
+            "Quel est le secret qu'on t'a confié et que tu as répété à tout le monde ?",
+            "Qui ici est le plus 'pick-me' (cherche désespérément l'attention) ?",
+            "Si tu devais échanger ta vie avec quelqu'un ici, ce serait qui (et surtout pas qui) ?",
+            "Qui ici a la pire réputation selon ce que tu as entendu dire ?",
+            "Quel est le message le plus méchant que tu as envoyé sur quelqu'un qui est dans cette pièce ?",
+            "Qui ici penses-tu être le plus mauvais au lit rien qu'au regard ?",
+
+            // --- CRUS & SANS FILTRE (41 à 60) ---
+            "C’est quoi la dernière personne à qui tu as envoyé un message 'dirty' ?",
+            "T'as déjà envoyé un nude à la mauvaise personne ? C'était qui ?",
+            "Tu préfères le sexe sans amour ou l'amour sans sexe pour le restant de tes jours ?",
+            "C'est quoi ton 'body count' ? (Chiffre exact ou personne ne boit)",
+            "As-tu déjà couché avec quelqu'un juste pour ne pas être seul(e) ?",
+            "Quelle est la vidéo la plus bizarre que tu as regardée sur un site X ?",
+            "T'as déjà eu un crush sur un membre de ta famille éloignée ou un(e) cousin(e) ?",
+            "Si on te proposait 100 000€ pour ne plus jamais avoir de rapport sexuel, tu signerais ?",
+            "C'est quoi la chose la plus illégale que tu as faite sans te faire prendre ?",
+            "T'as déjà fouillé dans le téléphone de ton/ta partenaire en secret ?",
+            "C'est quoi l'odeur la plus bizarre qui t'excite ?",
+            "Quelle est la pire chose que tu as faite par jalousie ?",
+            "Tu préfères coucher avec ton ex ou avec la personne à ta gauche ?",
+            "T'as déjà été attiré(e) par le/la partenaire d'un(e) ami(e) proche ?",
+            "C'est quoi ton plus gros regret 'sous l'emprise de l'alcool' ?",
+            "Si tu devais noter ton propre niveau de performance au lit sur 10, tu mettrais combien ?",
+            "Quel est le truc le plus bizarre que tu aies jamais utilisé comme sextoy ?",
+            "T'as déjà fait semblant d'être ivre pour justifier une connerie ?",
+            "Qui ici a l'air d'avoir l'hygiène la plus douteuse quand on gratte un peu ?",
+            "Si tu devais embrasser une personne du même sexe que toi ici, ce serait qui ?"
+        ];
+
+        function nextQuestion() {
+            const el = document.getElementById('question');
+            el.classList.add('opacity-0');
+            setTimeout(() => {
+                const q = questions[Math.floor(Math.random() * questions.length)];
+                el.innerText = `"${q}"`;
+                el.classList.remove('opacity-0');
+                el.classList.add('transition-opacity', 'duration-300');
+            }, 200);
+        }
+    </script>
+</body>
+</html>
