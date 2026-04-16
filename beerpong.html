@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,96 +10,150 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #0f172a; 
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
         }
-        .reveal { animation: fadeIn 0.35s ease-in-out; }
+
+        .reveal {
+            animation: fadeIn 0.35s ease-in-out;
+        }
+
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(6px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* --- Styles du Bracket (Arbre de tournoi) --- */
 
-        /* Style des lignes de l'arbre de tournoi */
-        .bracket-match {
+        #bracketWrapper {
             position: relative;
+            padding-bottom: 1rem;
         }
 
-        /* Ligne horizontale sortant du match */
-        .bracket-match::after {
-            content: '';
+        #bracketSvg {
             position: absolute;
-            top: 50%;
-            left: 100%;
-            height: 2px;
-            /* Raccourci sur mobile, plus long sur desktop */
-            width: 1.5rem; 
-            @media (min-width: 768px) {
-                width: 2rem; 
-            }
-            background-color: #4b5563; /* slate-600 */
-            transform: translateY(-50%);
-            z-index: 5;
-        }
-
-        /* Ligne verticale entre les matchs */
-        .bracket-round > div:not(:last-child) > .bracket-match::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: calc(100% + 1.5rem); /* Positionne après la ligne horizontale mobile */
-            @media (min-width: 768px) {
-                left: calc(100% + 2rem); /* Positionne après la ligne horizontale desktop */
-            }
-            width: 2px;
-            background-color: #4b5563; /* slate-600 */
-            transform: translateY(-50%);
-            z-index: 4;
-        }
-
-        /* Ajustement de la hauteur de la ligne verticale */
-        .bracket-round > div:nth-child(odd) > .bracket-match::before {
-            height: 100%;
             top: 0;
-            border-top-right-radius: 4px;
-        }
-        .bracket-round > div:nth-child(even) > .bracket-match::before {
-            height: 100%;
-            top: auto;
-            bottom: 0;
-            border-bottom-right-radius: 4px;
+            left: 0;
+            pointer-events: none;
+            overflow: visible;
+            z-index: 1;
         }
 
-        /* Cache la ligne horizontale finale pour le gagnant qui passe au tour suivant */
-        .bracket-round:last-child .bracket-match::after {
-            display: none;
+        #bracketColumns {
+            position: relative;
+            display: flex;
+            z-index: 2;
+            align-items: stretch;
         }
 
-        /* Ajoute une petite queue au gagnant du match pour se connecter à la ligne verticale */
-        .bracket-round > div:not(:last-child) > .bracket-match.match-win::after {
-             background-color: #4b5563;
+        .bracket-round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex-shrink: 0;
+            width: 180px;
+        }
+
+        .bracket-round+.bracket-round {
+            margin-left: 60px;
+        }
+
+        .match-slot {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .bracket-match {
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid #334155;
+            background: #1e293b;
+        }
+
+        .team-row {
+            padding: 8px 12px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            user-select: none;
+            min-width: 0;
+        }
+
+        .team-row:first-child {
+            border-bottom: 1px solid #334155;
+        }
+
+        .team-row:hover:not(.team-bye):not(.team-tbd):not(.team-fixed) {
+            background: #334155;
+            color: #f1f5f9;
+        }
+
+        .team-row.team-winner {
+            background: #db2777;
+            color: white;
+            font-weight: 700;
+        }
+
+        .team-row.team-winner:hover {
+            background: #be185d;
+        }
+
+        .team-row.team-bye {
+            color: #475569;
+            font-style: italic;
+            cursor: default;
+        }
+
+        .team-row.team-tbd {
+            color: #475569;
+            font-style: italic;
+            cursor: default;
+        }
+
+        .team-row.team-fixed {
+            background: #9d174d;
+            color: white;
+            font-weight: 700;
+            cursor: default;
         }
     </style>
 </head>
+
 <body class="text-white min-h-screen p-4 md:p-8 flex flex-col items-center">
 
     <!-- Confirmation Modal Structure (Hidden by default) -->
-    <div id="confirmationModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 reveal">
+    <div id="confirmationModal"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 reveal">
         <div class="bg-slate-800 p-6 rounded-xl shadow-2xl max-w-sm w-full border border-pink-500">
             <p id="confirmMessage" class="text-lg font-semibold mb-6 text-center text-white"></p>
             <div class="flex justify-around space-x-4">
-                <button id="confirmCancel" class="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Annuler</button>
-                <button id="confirmAccept" class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Confirmer</button>
+                <button id="confirmCancel"
+                    class="w-full bg-slate-600 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Annuler</button>
+                <button id="confirmAccept"
+                    class="w-full bg-pink-600 hover:bg-pink-700 text-white font-bold py-2 px-4 rounded-lg transition duration-150">Confirmer</button>
             </div>
         </div>
     </div>
 
     <main class="max-w-7xl w-full">
-        
+
         <header class="text-center mb-8 mt-4">
-            <h1 class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-600">
+            <h1
+                class="text-4xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-pink-600">
                 🍻 Tournoi BeerPong 🍻
             </h1>
             <p class="mt-2 text-md md:text-xl text-slate-400 font-medium">
@@ -109,22 +164,28 @@
         <!-- Section Inscription des Équipes -->
         <section class="bg-slate-800 p-6 rounded-2xl shadow-xl mb-8 border border-slate-700">
             <h2 class="text-2xl font-bold mb-4 text-pink-400">1. Équipes Participantes</h2>
-            <p class="text-sm text-slate-400 mb-4">Entrez les noms d'équipes séparés par des virgules ou des retours à la ligne (2 équipes minimum). L'arbre généré gérera automatiquement les "byes" (passer au tour suivant) si le nombre d'équipes n'est pas une puissance de 2.</p>
-            
+            <p class="text-sm text-slate-400 mb-4">Entrez les noms d'équipes séparés par des virgules ou des retours à
+                la ligne (2 équipes minimum). L'arbre généré gérera automatiquement les "byes" (passer au tour suivant)
+                si le nombre d'équipes n'est pas une puissance de 2.</p>
+
             <div class="flex flex-col md:flex-row gap-4">
-                <textarea id="teamInput" 
-                          rows="4"
-                          placeholder="Ex: Team A, Les Vainqueurs, Les Zinzins, ..."
-                          class="flex-grow bg-slate-700 text-white p-3 rounded-lg border border-slate-600 focus:border-pink-500 focus:ring focus:ring-pink-500 focus:ring-opacity-50 resize-none"></textarea>
-                
+                <textarea id="teamInput" rows="4" placeholder="Ex: Team A, Les Vainqueurs, Les Zinzins, ..."
+                    class="flex-grow bg-slate-700 text-white p-3 rounded-lg border border-slate-600 focus:border-pink-500 focus:ring focus:ring-pink-500 focus:ring-opacity-50 resize-none"></textarea>
+
                 <div class="flex flex-col space-y-3">
-                    <button id="addTeamsBtn" 
-                            class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-150 transform hover:scale-105">
+                    <button id="addTeamsBtn"
+                        class="bg-pink-600 hover:bg-pink-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-150 transform hover:scale-105">
                         Ajouter / Mettre à jour
                     </button>
+                    <label class="flex items-center space-x-2 text-sm text-slate-300 cursor-pointer mb-2">
+                        <input type="checkbox" id="shuffleCheckbox" checked
+                            class="form-checkbox h-4 w-4 text-pink-600 bg-slate-700 rounded border-slate-600 focus:ring-pink-500">
+                        <span>Mélanger aléatoirement au tirage</span>
+                    </label>
+
                     <!-- Le bouton de génération est activé dès qu'il y a 2 équipes ou plus -->
-                    <button id="generateBtn" 
-                            class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-150 transform hover:scale-105">
+                    <button id="generateBtn"
+                        class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl shadow-md transition duration-150 transform hover:scale-105">
                         Générer l'Arbre !
                     </button>
                 </div>
@@ -132,7 +193,8 @@
 
             <!-- Liste des équipes inscrites -->
             <div id="teamListContainer" class="mt-6 reveal">
-                <h3 class="text-lg font-semibold text-slate-300 mb-2">Liste actuelle (<span id="teamCount">0</span> équipes) :</h3>
+                <h3 class="text-lg font-semibold text-slate-300 mb-2">Liste actuelle (<span id="teamCount">0</span>
+                    équipes) :</h3>
                 <div id="teamList" class="flex flex-wrap gap-2 text-sm">
                     <!-- Les badges d'équipe seront insérés ici -->
                 </div>
@@ -140,16 +202,17 @@
         </section>
 
         <!-- Section Arbre de Tournoi -->
-        <section id="bracketArea" class="hidden bg-slate-800 p-4 md:p-6 rounded-2xl shadow-xl mb-8 border border-slate-700 reveal overflow-x-auto">
+        <section id="bracketArea"
+            class="hidden bg-slate-800 p-4 md:p-6 rounded-2xl shadow-xl mb-8 border border-slate-700 reveal overflow-x-auto">
             <div class="flex justify-between items-center mb-4 border-b border-slate-700 pb-4">
                 <h2 class="text-2xl font-bold text-pink-400">2. Arbre du Tournoi</h2>
                 <div class="flex flex-wrap justify-end gap-3">
-                    <button id="downloadBtn" 
-                            class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-150">
+                    <button id="downloadBtn"
+                        class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-150">
                         Télécharger l'état
                     </button>
-                    <button id="resetBtn" 
-                            class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-150">
+                    <button id="resetBtn"
+                        class="bg-red-600 hover:bg-red-700 text-white text-sm font-semibold py-2 px-4 rounded-lg transition duration-150">
                         Réinitialiser
                     </button>
                 </div>
@@ -157,17 +220,19 @@
 
             <!-- Badge Champion -->
             <div id="championBadge" class="hidden text-center mb-6 reveal">
-                <p class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
+                <p
+                    class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">
                     🏆 CHAMPION : <span id="championName" class="text-yellow-300"></span> 🏆
                 </p>
             </div>
 
             <!-- Conteneur du Bracket -->
-            <div id="bracketContainer" class="flex md:gap-12 gap-6 items-start">
-                <!-- Les tours seront injectés ici -->
+            <div id="bracketWrapper">
+                <svg id="bracketSvg"></svg>
+                <div id="bracketColumns"></div>
             </div>
         </section>
-        
+
     </main>
 
     <footer class="mt-8 text-center pb-12 w-full flex flex-col items-center">
@@ -177,7 +242,8 @@
         </p>
 
         <!-- Bouton de retour -->
-        <a href="index.html" class="px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50">
+        <a href="index.html"
+            class="px-8 py-3 bg-pink-600 hover:bg-pink-700 text-white font-bold rounded-full transition duration-300 shadow-lg shadow-pink-500/50">
             <span class="mr-2">🏠</span> Retour à l'Accueil des Jeux
         </a>
     </footer>
@@ -190,7 +256,7 @@
         let teams = [];
         let rounds = null;
         let confirmCallback = null;
-        
+
         // Références DOM
         const teamInput = document.getElementById('teamInput');
         const teamList = document.getElementById('teamList');
@@ -204,6 +270,7 @@
         const championBadge = document.getElementById('championBadge');
         const championNameSpan = document.getElementById('championName');
         const teamListContainer = document.getElementById('teamListContainer'); // Ajout de cette référence
+        const shuffleCheckbox = document.getElementById('shuffleCheckbox');
 
         // Références Modal
         const confirmationModal = document.getElementById('confirmationModal');
@@ -259,10 +326,28 @@
             const isReadyToGenerate = teams.length >= 2;
             generateBtn.disabled = !isReadyToGenerate;
             generateBtn.classList.toggle('opacity-50', !isReadyToGenerate);
-            
+
             // Suppression de l'ancienne logique d'avertissement de puissance de 2
             const existingWarning = teamListContainer.querySelector('.text-red-400');
             if (existingWarning) existingWarning.remove();
+        }
+
+        // --- Algorithme de Seeding ---
+        // Génère l'ordre optimal des matchs pour une puissance de 2
+        // Ex: pour 8 équipes, renvoie [1, 8, 4, 5, 2, 7, 3, 6]
+        function getSeedOrder(powerOfTwo) {
+            let roundsMath = Math.log2(powerOfTwo);
+            let matches = [1, 2];
+            for (let r = 1; r < roundsMath; r++) {
+                let nextMatches = [];
+                let sum = Math.pow(2, r + 1) + 1;
+                for (let i = 0; i < matches.length; i++) {
+                    nextMatches.push(matches[i]);
+                    nextMatches.push(sum - matches[i]);
+                }
+                matches = nextMatches;
+            }
+            return roundsMath === 0 ? [1] : matches;
         }
 
         // Mélange les équipes et crée le premier tour (gestion des byes)
@@ -279,18 +364,32 @@
                 nextPowerOfTwo *= 2;
             }
 
-            // 2. Créer la liste des participants dans l'ordre d'entrée (pas de mélange)
-            // C'est ici que le changement est fait : on utilise teams directement
-            const orderedTeams = [...teams]; 
-            const totalMatches = nextPowerOfTwo / 2;
-            
-            // Ajouter des 'null' (bye) si nécessaire pour arriver à nextPowerOfTwo participants
-            let participants = [...orderedTeams];
-            for (let i = 0; i < nextPowerOfTwo - numTeams; i++) {
-                participants.push(null); 
+            // 2. Créer la liste des participants
+            // Mélanger si la case est cochée, sinon garder l'ordre d'origine de 'teams'
+            let orderedTeams = [...teams];
+            if (shuffleCheckbox && shuffleCheckbox.checked) {
+                for (let i = orderedTeams.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [orderedTeams[i], orderedTeams[j]] = [orderedTeams[j], orderedTeams[i]];
+                }
             }
-            
-            // 3. Créer le premier tour
+
+            // 3. Récupérer l'ordre algorithmique des seeds
+            const seedOrder = getSeedOrder(nextPowerOfTwo);
+
+            // 4. Placer les équipes selon les seeds calculés
+            // Si la seed est supérieure au nombre d'équipes, c'est un espace vide (BYE)
+            let participants = [];
+            for (let i = 0; i < seedOrder.length; i++) {
+                const seedIndex = seedOrder[i] - 1;
+                if (seedIndex < orderedTeams.length) {
+                    participants.push(orderedTeams[seedIndex]);
+                } else {
+                    participants.push(null); // BYE
+                }
+            }
+
+            // 5. Créer le premier tour
             let currentRound = [];
             for (let i = 0; i < participants.length; i += 2) {
                 const team1 = participants[i];
@@ -308,19 +407,19 @@
                     match.winner = team1;
                 } else if (team2 && team2.name !== 'BYE' && (!team1 || team1.name === 'BYE')) { // BYE vs team2
                     match.winner = team2;
-                } else if ((!team1 || team1.name === 'BYE') && (!team2 || team2.name === 'BYE')) { 
-                    // Double BYE (ne devrait pas arriver avec notre logique)
-                    match.winner = { name: 'À déterminer' }; 
+                } else if ((!team1 || team1.name === 'BYE') && (!team2 || team2.name === 'BYE')) {
+                    // Double BYE (ne devrait pas arriver avec notre nouvel algorithme)
+                    match.winner = { name: 'À déterminer' };
                 }
-                
+
                 currentRound.push(match);
             }
-            
-            // 4. Propager les gagnants des byes (si le gagnant est déjà défini)
+
+            // 6. Propager les gagnants des byes (si le gagnant est déjà défini)
             rounds = [currentRound];
-            
+
             let numRounds = Math.log2(nextPowerOfTwo);
-            
+
             // Créer les tours suivants vides
             for (let i = 1; i < numRounds; i++) {
                 let nextRound = [];
@@ -332,20 +431,20 @@
                     // Les équipes sont initialisées au gagnant du match précédent
                     const team1 = prevRound[matchIndex1].winner;
                     const team2 = prevRound[matchIndex2].winner;
-                    
+
                     nextRound.push({
-                         id: Math.random().toString(36).substring(2, 9),
-                         team1: team1, 
-                         team2: team2, 
-                         winner: null
+                        id: Math.random().toString(36).substring(2, 9),
+                        team1: team1,
+                        team2: team2,
+                        winner: null
                     });
                 }
                 rounds.push(nextRound);
             }
-            
-            // 5. Mise à jour de tous les tours (important pour les byes)
-            // On s'assure que les byes sont propagés correctement
-            for(let i = 0; i < rounds.length; i++) {
+
+            // 7. Mise à jour de tous les tours (important pour les byes)
+            // On s'assure que les byes sont propagés correctement tout au long de l'arbre
+            for (let i = 0; i < rounds.length; i++) {
                 rounds[i].forEach((match, j) => {
                     // Si le match a un gagnant fixe (comme un BYE) ou déjà sélectionné, on propage
                     if (match.winner) {
@@ -354,12 +453,11 @@
                 });
             }
 
-
             saveState();
             bracketArea.classList.remove('hidden');
             renderBracket();
         }
-        
+
         // Met à jour le gagnant d'un match
         function setWinner(roundIndex, matchIndex, team) {
             // Un BYE ne peut pas être sélectionné comme gagnant (ni désélectionné)
@@ -367,14 +465,14 @@
 
             // Récupérer le match en cours
             const match = rounds[roundIndex][matchIndex];
-            
+
             // Vérifier si le clic est sur un match dont le gagnant est fixé (match BYE)
             const isByeMatch = (match.team1 && match.team1.name === 'BYE') || (match.team2 && match.team2.name === 'BYE');
             if (isByeMatch) {
                 // Si c'est un match avec BYE, le gagnant est fixé (l'équipe non-BYE). Ne pas permettre le changement.
                 return;
             }
-            
+
             // Logique de sélection/désélection normale
             if (match.winner && match.winner.name === team.name) {
                 // Si on clique sur le gagnant, le désélectionner
@@ -394,40 +492,51 @@
         function updateNextRounds(roundIndex, matchIndex) {
             const winner = rounds[roundIndex][matchIndex].winner;
             const nextRoundIndex = roundIndex + 1;
-            
+
             if (nextRoundIndex < rounds.length) {
                 const nextMatchIndex = Math.floor(matchIndex / 2);
                 const isFirstTeam = matchIndex % 2 === 0;
-                
+
                 // Mettre à jour l'équipe dans le match suivant
                 if (isFirstTeam) {
                     rounds[nextRoundIndex][nextMatchIndex].team1 = winner;
                 } else {
                     rounds[nextRoundIndex][nextMatchIndex].team2 = winner;
                 }
-                
+
                 // Si le gagnant est retiré, le match suivant est réinitialisé et la propagation continue (récursivité)
                 if (winner === null) {
                     rounds[nextRoundIndex][nextMatchIndex].winner = null;
                     updateNextRounds(nextRoundIndex, nextMatchIndex);
                 } else {
-                    // Si le nouveau match du tour suivant est devenu un BYE (ex: Team vs null/À déterminer)
+                    // Vérifier si le match suivant doit auto-avancer
+                    // IMPORTANT: On ne doit auto-avancer que si l'adversaire est explicitement un 'BYE',
+                    // PAS si l'adversaire est null ou 'À déterminer' (ce qui signifie qu'on attend un résultat de match)
                     const nextMatch = rounds[nextRoundIndex][nextMatchIndex];
                     const t1Known = nextMatch.team1 && nextMatch.team1.name !== 'À déterminer' && nextMatch.team1.name !== 'BYE';
                     const t2Known = nextMatch.team2 && nextMatch.team2.name !== 'À déterminer' && nextMatch.team2.name !== 'BYE';
+                    const t1IsBye = nextMatch.team1 && nextMatch.team1.name === 'BYE';
+                    const t2IsBye = nextMatch.team2 && nextMatch.team2.name === 'BYE';
 
-                    if (t1Known && (!nextMatch.team2 || nextMatch.team2.name === 'À déterminer' || nextMatch.team2.name === 'BYE')) {
-                        // Match de type BYE dans les tours intermédiaires (après que l'équipe 2 ait été retirée)
+                    if (t1Known && t2IsBye) {
+                        // L'adversaire est un vrai BYE → avancement automatique
                         nextMatch.winner = nextMatch.team1;
                         updateNextRounds(nextRoundIndex, nextMatchIndex);
-                    } else if (t2Known && (!nextMatch.team1 || nextMatch.team1.name === 'À déterminer' || nextMatch.team1.name === 'BYE')) {
-                         // Match de type BYE dans les tours intermédiaires (après que l'équipe 1 ait été retirée)
+                    } else if (t2Known && t1IsBye) {
+                        // L'adversaire est un vrai BYE → avancement automatique
                         nextMatch.winner = nextMatch.team2;
                         updateNextRounds(nextRoundIndex, nextMatchIndex);
                     } else if (nextMatch.winner !== null) {
-                        // Si les deux équipes sont à nouveau connues, on retire le gagnant pour que l'utilisateur puisse choisir à nouveau
-                        nextMatch.winner = null;
-                        updateNextRounds(nextRoundIndex, nextMatchIndex);
+                        // Si le gagnant précédent n'est plus valide (une équipe a changé), réinitialiser
+                        // Vérifier que le gagnant actuel est toujours l'une des deux équipes
+                        const winnerStillValid = nextMatch.winner && (
+                            (nextMatch.team1 && nextMatch.winner.name === nextMatch.team1.name) ||
+                            (nextMatch.team2 && nextMatch.winner.name === nextMatch.team2.name)
+                        );
+                        if (!winnerStillValid) {
+                            nextMatch.winner = null;
+                            updateNextRounds(nextRoundIndex, nextMatchIndex);
+                        }
                     }
                 }
             }
@@ -436,121 +545,187 @@
 
         // --- Fonctions de Rendu (UI) ---
 
+        // Crée une ligne de team pour le bracket
+        function createTeamRow(team, winner, roundIndex, matchIndex) {
+            const row = document.createElement('div');
+            row.className = 'team-row';
+
+            const match = rounds[roundIndex][matchIndex];
+            const isByeMatch = (match.team1 && match.team1.name === 'BYE') || (match.team2 && match.team2.name === 'BYE');
+
+            if (!team || team.name === 'BYE') {
+                row.classList.add('team-bye');
+                row.textContent = 'BYE';
+            } else if (team.name === 'À déterminer') {
+                row.classList.add('team-tbd');
+                row.textContent = '—';
+            } else if (isByeMatch && winner && winner.name === team.name) {
+                // Qualifié automatiquement via BYE
+                row.classList.add('team-fixed');
+                row.textContent = team.name;
+            } else if (winner && winner.name === team.name) {
+                row.classList.add('team-winner');
+                row.textContent = team.name;
+                row.addEventListener('click', () => setWinner(roundIndex, matchIndex, team));
+            } else {
+                row.textContent = team.name;
+                if (!isByeMatch) {
+                    row.addEventListener('click', () => setWinner(roundIndex, matchIndex, team));
+                }
+            }
+            return row;
+        }
+
         // Crée l'élément DOM pour un match
         function createMatchElement(match, roundIndex, matchIndex) {
-            const matchDiv = document.createElement('div');
-            // La classe match-win sert à styler la ligne de connexion
-            const isWinnerSelected = match.winner && match.winner.name !== 'À déterminer';
-            matchDiv.className = `bracket-match relative mb-8 w-36 md:w-48 ${isWinnerSelected ? 'match-win' : ''}`;
+            const slot = document.createElement('div');
+            slot.className = 'match-slot';
+            slot.dataset.round = roundIndex;
+            slot.dataset.match = matchIndex;
 
-            const team1 = match.team1;
-            const team2 = match.team2;
+            const box = document.createElement('div');
+            box.className = 'bracket-match';
 
-            if (team1) {
-                matchDiv.appendChild(createTeamElement(team1, match.winner, 1, roundIndex, matchIndex));
-            } else {
-                matchDiv.appendChild(createPlaceholderTeam(1)); 
-            }
+            box.appendChild(createTeamRow(match.team1, match.winner, roundIndex, matchIndex));
+            box.appendChild(createTeamRow(match.team2, match.winner, roundIndex, matchIndex));
 
-            if (team2) {
-                matchDiv.appendChild(createTeamElement(team2, match.winner, 2, roundIndex, matchIndex));
-            } else {
-                matchDiv.appendChild(createPlaceholderTeam(2));
-            }
-            
-            return matchDiv;
-        }
-
-        // Crée l'élément DOM pour une équipe
-        function createTeamElement(team, winner, teamNumber, roundIndex, matchIndex) {
-            const teamDiv = document.createElement('div');
-            const isWinner = winner && winner.name === team.name;
-            const isBye = team.name === 'BYE';
-            const isFuture = team.name === 'À déterminer';
-            
-            // Un match BYE est un match où l'un des participants est 'BYE'. Son gagnant est fixé.
-            const match = rounds[roundIndex][matchIndex];
-            const isFixedByeMatch = (match.team1 && match.team1.name === 'BYE') || (match.team2 && match.team2.name === 'BYE');
-            
-            let baseClasses = 'p-2 my-0.5 rounded-lg text-sm truncate transition duration-150 ease-in-out select-none';
-            
-            if (isBye || isFuture) {
-                // Style pour le BYE ou l'équipe Future
-                teamDiv.className = `${baseClasses} bg-slate-800 text-slate-500 italic border border-slate-700 pointer-events-none`;
-                teamDiv.textContent = isBye ? 'BYE' : 'À déterminer';
-            } else if (isFixedByeMatch) {
-                // L'équipe qui gagne par BYE est affichée comme gagnante mais n'est pas cliquable
-                teamDiv.className = `${baseClasses} bg-pink-600 font-bold shadow-lg text-slate-100 border border-pink-500 pointer-events-none`;
-                teamDiv.textContent = team.name;
-            } else if (isWinner) {
-                // Style pour le Vainqueur sélectionné par l'utilisateur
-                teamDiv.className = `${baseClasses} bg-pink-600 font-bold shadow-lg transform scale-105 cursor-pointer text-slate-100 border border-pink-500 hover:bg-pink-700`;
-                teamDiv.textContent = team.name;
-                teamDiv.addEventListener('click', () => {
-                     setWinner(roundIndex, matchIndex, team);
-                   });
-            } else {
-                // Style par défaut (équipe en attente)
-                teamDiv.className = `${baseClasses} bg-slate-700 hover:bg-slate-600 border border-slate-600 cursor-pointer text-slate-100`;
-                teamDiv.textContent = team.name;
-                teamDiv.addEventListener('click', () => {
-                     setWinner(roundIndex, matchIndex, team);
-                   });
-            }
-
-            return teamDiv;
-        }
-
-        // Crée l'élément DOM pour une équipe dont le nom n'est pas encore connu
-        function createPlaceholderTeam(teamNumber) {
-            const teamDiv = document.createElement('div');
-            teamDiv.className = 'p-2 my-0.5 rounded-lg text-sm italic text-slate-500 bg-slate-800 border border-slate-700 pointer-events-none select-none';
-            teamDiv.textContent = `Gagnant Match Précédent`; 
-            return teamDiv;
+            slot.appendChild(box);
+            return slot;
         }
 
         // Crée l'élément DOM pour un tour complet
         function createRoundElement(round, roundIndex) {
-            const roundDiv = document.createElement('div');
-            // Ajustement de la hauteur du conteneur en fonction du nombre de matchs
-            const matchCount = round.length;
-            const roundHeightClass = matchCount > 1 ? 'justify-around' : 'justify-center'; 
-
-            roundDiv.className = `bracket-round flex flex-col ${roundHeightClass} h-full`; 
-            
-            // Ajout d'un padding top important pour la finale
-            if (roundIndex === rounds.length - 1) {
-                roundDiv.classList.add('pt-16');
-            }
+            const col = document.createElement('div');
+            col.className = 'bracket-round';
+            col.dataset.roundIndex = roundIndex;
 
             round.forEach((match, matchIndex) => {
-                roundDiv.appendChild(createMatchElement(match, roundIndex, matchIndex));
+                col.appendChild(createMatchElement(match, roundIndex, matchIndex));
             });
 
-            return roundDiv;
+            return col;
+        }
+
+        // Dessine les lignes SVG connectant les matchs entre deux rounds
+        function drawConnectors() {
+            const svg = document.getElementById('bracketSvg');
+            const wrapper = document.getElementById('bracketWrapper');
+            const columns = document.getElementById('bracketColumns');
+
+            // Dimensionner le SVG
+            const wrapperRect = columns.getBoundingClientRect();
+            svg.setAttribute('width', columns.scrollWidth);
+            svg.setAttribute('height', columns.scrollHeight);
+            svg.innerHTML = '';
+
+            const cols = columns.querySelectorAll('.bracket-round');
+
+            for (let r = 0; r < cols.length - 1; r++) {
+                const thisCol = cols[r];
+                const nextCol = cols[r + 1];
+                const thisSlots = thisCol.querySelectorAll('.match-slot');
+                const nextSlots = nextCol.querySelectorAll('.match-slot');
+
+                const colsRect = columns.getBoundingClientRect();
+
+                // Chaque paire de matchs du tour actuel alimente un match du tour suivant
+                for (let m = 0; m < nextSlots.length; m++) {
+                    const topSlot = thisSlots[m * 2];
+                    const botSlot = thisSlots[m * 2 + 1];
+                    const destSlot = nextSlots[m];
+
+                    if (!topSlot || !botSlot || !destSlot) continue;
+
+                    const topBox = topSlot.querySelector('.bracket-match');
+                    const botBox = botSlot.querySelector('.bracket-match');
+                    const destBox = destSlot.querySelector('.bracket-match');
+
+                    const topRect = topBox.getBoundingClientRect();
+                    const botRect = botBox.getBoundingClientRect();
+                    const destRect = destBox.getBoundingClientRect();
+
+                    // Coordonnées relatives au conteneur
+                    const ox = columns.scrollLeft;
+                    const oy = colsRect.top;
+
+                    const x1 = topRect.right - colsRect.left + ox;
+                    const y1top = topRect.top + topRect.height / 2 - oy;
+                    const y1bot = botRect.top + botRect.height / 2 - oy;
+                    const yMid = (y1top + y1bot) / 2;
+                    const x2 = destRect.left - colsRect.left + ox;
+                    const y2 = destRect.top + destRect.height / 2 - oy;
+
+                    // Portion horizontale depuis chaque match source
+                    const xMid = x1 + (x2 - x1) / 2;
+
+                    const lineColor = '#4b5563';
+                    const lineW = '2';
+
+                    // Ligne horizontale du match top vers le milieu
+                    addSvgLine(svg, x1, y1top, xMid, y1top, lineColor, lineW);
+                    // Ligne horizontale du match bot vers le milieu
+                    addSvgLine(svg, x1, y1bot, xMid, y1bot, lineColor, lineW);
+                    // Ligne verticale joignant top et bot
+                    addSvgLine(svg, xMid, y1top, xMid, y1bot, lineColor, lineW);
+                    // Ligne horizontale du milieu vers le match destination
+                    addSvgLine(svg, xMid, yMid, x2, yMid, lineColor, lineW);
+                    // Petite ligne verticale d'entrée sur le match destination (si yMid != y2)
+                    if (Math.abs(yMid - y2) > 1) {
+                        addSvgLine(svg, x2, yMid, x2, y2, lineColor, lineW);
+                    }
+                }
+            }
+        }
+
+        function addSvgLine(svg, x1, y1, x2, y2, color, width) {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('x1', Math.round(x1));
+            line.setAttribute('y1', Math.round(y1));
+            line.setAttribute('x2', Math.round(x2));
+            line.setAttribute('y2', Math.round(y2));
+            line.setAttribute('stroke', color);
+            line.setAttribute('stroke-width', width);
+            line.setAttribute('stroke-linecap', 'round');
+            svg.appendChild(line);
         }
 
         // Fonction principale de rendu de l'arbre
         function renderBracket() {
-            bracketContainer.innerHTML = '';
+            const columns = document.getElementById('bracketColumns');
+            const svg = document.getElementById('bracketSvg');
+            columns.innerHTML = '';
+            svg.innerHTML = '';
             championBadge.classList.add('hidden');
             championNameSpan.textContent = '';
-            
+
             if (!rounds || rounds.length === 0) return;
+
+            // Calcul de la hauteur minimale pour que les slots soient bien espacés
+            const maxMatchesInRound = rounds[0].length;
+            const minSlotHeight = 80; // px par match minimum
+            const totalHeight = Math.max(maxMatchesInRound * minSlotHeight, 300);
+
+            const wrapper = document.getElementById('bracketWrapper');
+            columns.style.minHeight = totalHeight + 'px';
 
             // Rendu de tous les tours
             rounds.forEach((round, roundIndex) => {
-                bracketContainer.appendChild(createRoundElement(round, roundIndex));
+                columns.appendChild(createRoundElement(round, roundIndex));
             });
-            
+
+            // Dessiner les connecteurs SVG après le layout
+            requestAnimationFrame(() => {
+                drawConnectors();
+            });
+
             // Vérification et affichage du Champion
             const finalRound = rounds[rounds.length - 1];
             if (finalRound && finalRound.length > 0 && finalRound[0].winner) {
                 const champion = finalRound[0].winner;
-                 if (champion && champion.name !== 'À déterminer' && champion.name !== 'BYE') {
+                if (champion && champion.name !== 'À déterminer' && champion.name !== 'BYE') {
                     championNameSpan.textContent = champion.name;
                     championBadge.classList.remove('hidden');
-                 }
+                }
             }
         }
 
@@ -572,23 +747,23 @@
 
             // Nettoyer et séparer les noms (par virgule ou saut de ligne)
             const teamNames = rawText.split(/[\n,]+/)
-                                     .map(name => name.trim())
-                                     .filter(name => name.length > 0);
+                .map(name => name.trim())
+                .filter(name => name.length > 0);
 
             // Mettre à jour la liste des équipes
             teams = teamNames.map(name => ({ name }));
-            
+
             updateTeamsUI();
             saveState();
         });
 
         generateBtn.addEventListener('click', () => {
-             // La vérification est maintenant effectuée dans generateBracket et est moins restrictive
-             if (teams.length >= 2) {
-                 generateBracket();
-             } else {
-                 showConfirm("Veuillez ajouter au moins deux équipes pour générer l'arbre.", () => {});
-             }
+            // La vérification est maintenant effectuée dans generateBracket et est moins restrictive
+            if (teams.length >= 2) {
+                generateBracket();
+            } else {
+                showConfirm("Veuillez ajouter au moins deux équipes pour générer l'arbre.", () => { });
+            }
         });
 
         resetBtn.addEventListener('click', () => {
@@ -620,10 +795,11 @@
             loadState();
             updateTeamsUI();
             if (rounds) {
-                bracketArea.classList.remove('hidden'); 
+                bracketArea.classList.remove('hidden');
                 renderBracket();
             }
         });
     </script>
 </body>
+
 </html>
