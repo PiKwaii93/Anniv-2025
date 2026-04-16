@@ -37,7 +37,7 @@
             res.className = "text-3xl font-bold animate-pulse text-white";
             
             setTimeout(() => {
-                const isShot = Math.floor(Math.random() * 6) === 0; // 1 chance sur 6
+                const isShot = Math.floor(Math.random() * 2) === 0; // 1 chance sur 6
                 if (isShot) {
                     res.innerText = "SHOT ! 🥃";
                     res.className = "text-5xl font-black text-red-500 shot-glow";
